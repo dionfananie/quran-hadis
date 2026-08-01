@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/i18n";
 function Footer() {
 	const { t } = useI18n();
 	return (
-		<footer className="pb-28 md:pb-10">
+		<footer className="pb-28 md:pb-10 mt-4">
 			<div className="mx-auto max-w-6xl px-4 md:px-8">
 				<div className="rounded-2xl bg-surface-low px-6 py-6 text-center dark:bg-surface">
 					<p className="font-serif text-lg font-semibold">{t("appName")}</p>

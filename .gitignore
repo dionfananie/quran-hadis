@@ -7,7 +7,7 @@
 *.orig
 .opencode/**
 opencode.json
-PLAN.md
+plan/**/*
 # Created by git when using merge tools for conflicts
 *.BACKUP.*
 *.BASE.*
