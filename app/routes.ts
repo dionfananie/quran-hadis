@@ -9,6 +9,7 @@ export default [
 	route("hadith/:book", "routes/hadith/book.tsx"),
 	route("hadith/:book/:number", "routes/hadith/hadith.tsx"),
 	route("prayer-times", "routes/prayer-times.tsx"),
+	route("search", "routes/search.tsx"),
 	route("asmaul-husna", "routes/asmaul-husna.tsx"),
 	route("azkar", "routes/azkar.tsx"),
 	route("more", "routes/more.tsx"),

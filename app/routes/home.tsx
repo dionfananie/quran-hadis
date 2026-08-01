@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import type { Route } from "./+types/home";
 import { SurahIndex } from "@/components/surah-index";
-import { SurahSearch } from "@/components/surah-search";
+import { SearchDialog } from "@/components/search-dialog";
 import { ContinueReadingCard, LastReadGrid } from "@/components/home/last-read-card";
 import { DailyVerseCard } from "@/components/home/daily-verse-card";
 import { PrayerMarquee } from "@/components/home/prayer-marquee";
@@ -143,7 +143,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 				}
 			/>
 
-			<SurahSearch open={searchOpen} onOpenChange={setSearchOpen} />
+			<SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
 		</div>
 	);
 }
