@@ -8,7 +8,7 @@ export function loader({}: Route.LoaderArgs) {
 		"/hadith",
 		"/prayer-times",
 		"/asmaul-husna",
-		"/azkar",
+		"/prayer",
 		"/settings",
 	];
 

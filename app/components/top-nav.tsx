@@ -7,7 +7,7 @@ const items: { to: string; labelKey: TKey; end?: boolean }[] = [
 	{ to: "/", labelKey: "nav.home", end: true },
 	{ to: "/quran", labelKey: "nav.quran" },
 	{ to: "/hadith", labelKey: "nav.hadith" },
-	{ to: "/prayer-times", labelKey: "nav.prayers" },
+	{ to: "/prayer", labelKey: "nav.prayers" },
 	{ to: "/more", labelKey: "nav.more" },
 ];
 

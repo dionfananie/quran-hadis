@@ -17,7 +17,7 @@ const id = {
 	"nav.home": "Beranda",
 	"nav.quran": "Quran",
 	"nav.hadith": "Hadits",
-	"nav.prayers": "Jadwal",
+	"nav.prayers": "Doa",
 	"nav.more": "Lainnya",
 
 	"more.asmaulHusna": "Asmaul Husna",

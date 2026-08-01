@@ -11,7 +11,7 @@ export default [
 	route("prayer-times", "routes/prayer-times.tsx"),
 	route("search", "routes/search.tsx"),
 	route("asmaul-husna", "routes/asmaul-husna.tsx"),
-	route("azkar", "routes/azkar.tsx"),
+	route("prayer", "routes/prayer.tsx"),
 	route("more", "routes/more.tsx"),
 	route("settings", "routes/settings.tsx"),
 	route("sitemap.xml", "routes/sitemap.tsx"),

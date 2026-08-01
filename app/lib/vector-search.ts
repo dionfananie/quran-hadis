@@ -116,7 +116,7 @@ function mapResult(r: EquranResult): VectorSearchResult | null {
 			type: "doa",
 			score: r.skor,
 			relevance,
-			href: "/azkar",
+			href: "/prayer",
 			title: r.data.judul,
 			arabic: r.data.teks_arab,
 			text: truncate(r.data.arti ?? "", 220),
