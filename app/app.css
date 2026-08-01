@@ -1,0 +1,205 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+
+	/* Ethereal Sanctuary surface hierarchy */
+	--color-surface-low: var(--surface-low);
+	--color-surface: var(--surface);
+	--color-surface-high: var(--surface-high);
+	--color-surface-bright: var(--surface-bright);
+
+	/* Design accents */
+	--color-gold: var(--gold);
+	--color-teal: var(--teal);
+
+	/* Figma Sacred Emerald — primary container for gradients */
+	--color-primary-container: var(--primary-container);
+	--color-gold-border: var(--gold-border);
+	--color-gold-surface: var(--gold-surface);
+
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+
+	--font-sans: var(--font-sans-stack);
+	--font-serif: var(--font-serif-stack);
+	--font-arabic: var(--font-arabic-stack);
+}
+
+@theme {
+	--animate-marquee: marquee 40s linear infinite;
+
+	@keyframes marquee {
+		to {
+			transform: translateX(-50%);
+		}
+	}
+}
+
+:root {
+	/* Fonts */
+	--font-sans-stack:
+		"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+		"Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	--font-serif-stack: "Noto Serif", ui-serif, Georgia, serif;
+	--font-arabic-stack: "Amiri", "Scheherazade New", "Traditional Arabic", serif;
+
+	--radius: 1rem;
+
+	/* Light — "Ethereal Sanctuary" */
+	--background: #f9faf4;
+	--foreground: #1a1c19;
+
+	--card: #ffffff;
+	--card-foreground: #1a1c19;
+
+	--popover: #f9faf4;
+	--popover-foreground: #1a1c19;
+
+	--primary: #00342b;
+	--primary-foreground: #ffffff;
+
+	--secondary: #775a19;
+	--secondary-foreground: #ffffff;
+
+	--muted: #f3f4ee;
+	--muted-foreground: #3f4945;
+
+	--accent: #e8e9e3;
+	--accent-foreground: #1a1c19;
+
+	--destructive: #ba1a1a;
+	--destructive-foreground: #ffffff;
+
+	--border: #bfc9c4;
+	--input: #bfc9c4;
+	--ring: #004d40;
+
+	--chart-1: #004d40;
+	--chart-2: #c5a059;
+	--chart-3: #7ebdac;
+	--chart-4: #fed488;
+	--chart-5: #364646;
+
+	/* Surface hierarchy (Stitch tokens) */
+	--surface-low: #f3f4ee;
+	--surface: #edeee8;
+	--surface-high: #e8e9e3;
+	--surface-bright: #f9faf4;
+
+	/* Design accents */
+	--gold: #c5a059;
+	--teal: #004d40;
+
+	/* Figma Sacred Emerald tokens */
+	--primary-container: #004d40;
+	--gold-border: rgba(184, 134, 11, 0.3);
+	--gold-surface: rgba(184, 134, 11, 0.05);
+}
+
+.dark {
+	/* Dark — "Noor" / Sacred Interval (Figma node 15:2) */
+	--background: #121414;
+	--foreground: #f1f1ec;
+
+	--card: #1a1c1c;
+	--card-foreground: #f1f1ec;
+
+	--popover: #1a1c1c;
+	--popover-foreground: #f1f1ec;
+
+	--primary: #94d3c1;
+	--primary-foreground: #121414;
+
+	--secondary: #c8c8b0;
+	--secondary-foreground: #303221;
+
+	--muted: #1a1c1c;
+	--muted-foreground: #bfc9c4;
+
+	--accent: #282a2a;
+	--accent-foreground: #f1f1ec;
+
+	--destructive: #ffb4ab;
+	--destructive-foreground: #690005;
+
+	--border: #3e4944;
+	--input: #3e4944;
+	--ring: #94d3c1;
+
+	--chart-1: #94d3c1;
+	--chart-2: #e9c176;
+	--chart-3: #4a6a65;
+	--chart-4: #494a38;
+	--chart-5: #333535;
+
+	--surface-low: #1a1c1c;
+	--surface: #1e2020;
+	--surface-high: #282a2a;
+	--surface-bright: #383939;
+
+	--gold: #e9c176;
+	--teal: #94d3c1;
+
+	/* Figma Sacred Emerald tokens (dark) */
+	--primary-container: #003829;
+	--gold-border: rgba(233, 193, 118, 0.4);
+	--gold-surface: rgba(233, 193, 118, 0.1);
+}
+
+@layer base {
+	* {
+		border-color: var(--border);
+		outline-color: var(--ring);
+		outline-offset: 2px;
+	}
+
+	html {
+		color-scheme: light;
+	}
+
+	html.dark {
+		color-scheme: dark;
+	}
+
+	body {
+		background-color: var(--background);
+		color: var(--foreground);
+		@apply font-sans antialiased;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4 {
+		@apply font-serif;
+	}
+}

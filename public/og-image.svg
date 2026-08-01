@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Moozhaf">
+	<defs>
+		<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0" stop-color="#00342b"/>
+			<stop offset="1" stop-color="#004d40"/>
+		</linearGradient>
+		<linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+			<stop offset="0" stop-color="#c5a059"/>
+			<stop offset="1" stop-color="#e9c176"/>
+		</linearGradient>
+	</defs>
+	<rect width="1200" height="630" fill="url(#bg)"/>
+	<circle cx="1050" cy="120" r="220" fill="#ffffff" opacity="0.04"/>
+	<circle cx="180" cy="540" r="260" fill="#ffffff" opacity="0.03"/>
+	<text x="600" y="250" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="700" fill="#f9faf4">Moozhaf</text>
+	<text x="600" y="320" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="30" fill="#c5a059">Baca Al-Qur'an, Hadits &amp; Jadwal Shalat</text>
+	<rect x="530" y="365" width="140" height="4" rx="2" fill="url(#gold)"/>
+	<text x="600" y="430" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="40" fill="#f9faf4" opacity="0.92">﷽</text>
+</svg>

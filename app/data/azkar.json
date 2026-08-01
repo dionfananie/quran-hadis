@@ -1,0 +1,210 @@
+[
+	{
+		"id": "after-salah",
+		"titleId": "Setelah Shalat",
+		"titleEn": "After Prayer",
+		"items": [
+			{
+				"id": "istighfar-3",
+				"arabic": "أَسْتَغْفِرُ اللهَ",
+				"transliteration": "Astaghfirullah",
+				"translationId": "Aku memohon ampun kepada Allah",
+				"translationEn": "I seek forgiveness from Allah",
+				"count": 3
+			},
+			{
+				"id": "tahlil",
+				"arabic": "لَا إِلٰهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيْكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْر",
+				"transliteration": "La ilaha illallah wahdahu la syarika lahu, lahul mulku wa lahul hamdu wa huwa 'ala kulli syai'in qadir",
+				"translationId": "Tiada Tuhan selain Allah Yang Maha Esa, tidak ada sekutu bagi-Nya. Milik-Nya kerajaan dan pujian, dan Dia Maha Kuasa atas segala sesuatu",
+				"translationEn": "There is no deity except Allah alone, with no partner. His is the dominion and His is the praise, and He is over all things competent",
+				"count": 1
+			},
+			{
+				"id": "subhanallah-33",
+				"arabic": "سُبْحَانَ اللهِ",
+				"transliteration": "Subhanallah",
+				"translationId": "Maha Suci Allah",
+				"translationEn": "Glory be to Allah",
+				"count": 33
+			},
+			{
+				"id": "alhamdulillah-33",
+				"arabic": "الْحَمْدُ لِلّٰهِ",
+				"transliteration": "Alhamdulillah",
+				"translationId": "Segala puji bagi Allah",
+				"translationEn": "All praise is for Allah",
+				"count": 33
+			},
+			{
+				"id": "allahu-akbar-33",
+				"arabic": "اللهُ أَكْبَر",
+				"transliteration": "Allahu Akbar",
+				"translationId": "Allah Maha Besar",
+				"translationEn": "Allah is the Greatest",
+				"count": 33
+			},
+			{
+				"id": "khatam-tasbih",
+				"arabic": "لَا إِلٰهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيْكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيْر",
+				"transliteration": "La ilaha illallah wahdahu la syarika lahu, lahul mulku wa lahul hamdu wa huwa 'ala kulli syai'in qadir",
+				"translationId": "Tiada Tuhan selain Allah Yang Maha Esa, tidak ada sekutu bagi-Nya. Milik-Nya kerajaan dan pujian, dan Dia Maha Kuasa atas segala sesuatu",
+				"translationEn": "There is no deity except Allah alone, with no partner. His is the dominion and His is the praise, and He is over all things competent",
+				"count": 1
+			}
+		]
+	},
+	{
+		"id": "morning",
+		"titleId": "Dzikir Pagi",
+		"titleEn": "Morning Remembrance",
+		"items": [
+			{
+				"id": "asbahna",
+				"arabic": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلّٰهِ، وَالْحَمْدُ لِلّٰهِ، لَا إِلٰهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيْكَ لَهُ",
+				"transliteration": "Asbahna wa ashbahal mulku lillah, walhamdulillah, la ilaha illallah wahdahu la syarika lah",
+				"translationId": "Kami telah memasuki waktu pagi dan kerajaan hanya milik Allah, segala puji bagi Allah, tiada Tuhan selain Allah Yang Maha Esa tanpa sekutu bagi-Nya",
+				"translationEn": "We have entered the morning and the dominion belongs to Allah, all praise is for Allah, there is no deity except Allah alone with no partner",
+				"count": 1
+			},
+			{
+				"id": "allahumma-bika-asbahna",
+				"arabic": "اللّٰهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوْتُ وَإِلَيْكَ النُّشُوْر",
+				"transliteration": "Allahumma bika asbahna, wa bika amsayna, wa bika nahya, wa bika namutu wa ilaikan nusyur",
+				"translationId": "Ya Allah, dengan-Mu kami memasuki pagi, dengan-Mu kami memasuki sore, dengan-Mu kami hidup, dengan-Mu kami mati, dan kepada-Mu kami dibangkitkan",
+				"translationEn": "O Allah, by You we enter the morning, by You we enter the evening, by You we live, by You we die, and to You is the resurrection",
+				"count": 1
+			},
+			{
+				"id": "hasbiyallah",
+				"arabic": "حَسْبِيَ اللهُ لَا إِلٰهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيْم",
+				"transliteration": "Hasbiyallahu la ilaha illa huwa, 'alaihi tawakkaltu wa huwa rabbul 'arsyil 'azhim",
+				"translationId": "Cukuplah Allah bagiku, tiada Tuhan selain Dia, kepada-Nya aku bertawakal dan Dia adalah Tuhan Arsy yang Agung",
+				"translationEn": "Allah is sufficient for me, there is no deity except Him, upon Him I rely and He is the Lord of the Mighty Throne",
+				"count": 7
+			}
+		]
+	},
+	{
+		"id": "evening",
+		"titleId": "Dzikir Petang",
+		"titleEn": "Evening Remembrance",
+		"items": [
+			{
+				"id": "amsayna",
+				"arabic": "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلّٰهِ، وَالْحَمْدُ لِلّٰهِ، لَا إِلٰهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيْكَ لَهُ",
+				"transliteration": "Amsayna wa amsal mulku lillah, walhamdulillah, la ilaha illallah wahdahu la syarika lah",
+				"translationId": "Kami telah memasuki waktu petang dan kerajaan hanya milik Allah, segala puji bagi Allah, tiada Tuhan selain Allah Yang Maha Esa tanpa sekutu bagi-Nya",
+				"translationEn": "We have entered the evening and the dominion belongs to Allah, all praise is for Allah, there is no deity except Allah alone with no partner",
+				"count": 1
+			},
+			{
+				"id": "alladzi-hummasala",
+				"arabic": "اللّٰهُمَّ إِنِّي أَمْسَيْتُ أُشْهِدُكَ وَأُشْهِدُ حَمَلَةَ عَرْشِكَ وَمَلَائِكَتَكَ وَجَمِيْعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللهُ لَا إِلٰهَ إِلَّا أَنْتَ",
+				"transliteration": "Allahumma inni amsaytu usyhiduka wa usyhida hamalata 'arsyika wa mala'ikataka wa jami'a khalqika, annaka antallahu la ilaha illa anta",
+				"translationId": "Ya Allah, sesungguhnya aku di waktu petang ini bersaksi kepada-Mu, dan kepada pembawa Arsy-Mu, malaikat-malaikat-Mu, dan seluruh makhluk-Mu, bahwa sesungguhnya Engkau adalah Allah, tiada Tuhan selain Engkau",
+				"translationEn": "O Allah, in the evening I bear witness before You, the bearers of Your Throne, Your angels and all of Your creation, that You are Allah and there is no deity except You",
+				"count": 4
+			}
+		]
+	},
+	{
+		"id": "sleep",
+		"titleId": "Sebelum Tidur",
+		"titleEn": "Before Sleep",
+		"items": [
+			{
+				"id": "bismika",
+				"arabic": "بِاسْمِكَ اللّٰهُمَّ أَمُوْتُ وَأَحْيَا",
+				"transliteration": "Bismika Allahumma amutu wa ahya",
+				"translationId": "Dengan nama-Mu ya Allah aku mati dan aku hidup",
+				"translationEn": "In Your name, O Allah, I die and I live",
+				"count": 1
+			},
+			{
+				"id": "alhamdulillah-haladzi",
+				"arabic": "اَلْحَمْدُ لِلّٰهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَكَفَانَا وَآوَانَا، فَكَمْ مِمَّنْ لَا كَافِيَ لَهُ وَلَا مُؤْوِي",
+				"transliteration": "Alhamdulillahilladzi ath'amana wa saqana wa kafana wa awana, fakam mimman la kafiya lahu wa la mu'wi",
+				"translationId": "Segala puji bagi Allah yang memberi kami makan dan minum, mencukupi kami dan memberi tempat tinggal. Betapa banyak orang yang tidak memiliki pemberi kecukupan dan tempat tinggal",
+				"translationEn": "All praise is for Allah who fed us, gave us drink, sufficed us and sheltered us. How many are those with no one to suffice or shelter them",
+				"count": 1
+			}
+		]
+	},
+	{
+		"id": "waking",
+		"titleId": "Bangun Tidur",
+		"titleEn": "Upon Waking",
+		"items": [
+			{
+				"id": "ahyan-a",
+				"arabic": "الْحَمْدُ لِلّٰهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُوْر",
+				"transliteration": "Alhamdulillahilladzi ahyana ba'da ma amatana wa ilaihin nusyur",
+				"translationId": "Segala puji bagi Allah yang menghidupkan kami setelah mematikan kami, dan kepada-Nya kami dibangkitkan",
+				"translationEn": "All praise is for Allah who gave us life after He gave us death, and to Him is the resurrection",
+				"count": 1
+			}
+		]
+	},
+	{
+		"id": "eating",
+		"titleId": "Makan & Minum",
+		"titleEn": "Eating & Drinking",
+		"items": [
+			{
+				"id": "bismillah-eat",
+				"arabic": "بِسْمِ اللهِ",
+				"transliteration": "Bismillah",
+				"translationId": "Dengan nama Allah",
+				"translationEn": "In the name of Allah",
+				"count": 1
+			},
+			{
+				"id": "hamdan-eat",
+				"arabic": "الْحَمْدُ لِلّٰهِ الَّذِي أَطْعَمَنِي هٰذَا وَرَزَقَنِيْهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّة",
+				"transliteration": "Alhamdulillahilladzi ath'amani hadza wa razaqanihi min ghairi haulin minni wa la quwwah",
+				"translationId": "Segala puji bagi Allah yang memberiku makanan ini dan mengaruniakannya kepadaku tanpa daya dan kekuatan dariku",
+				"translationEn": "All praise is for Allah who fed me this and provided it to me without any might or power from me",
+				"count": 1
+			}
+		]
+	},
+	{
+		"id": "travel",
+		"titleId": "Bepergian",
+		"titleEn": "Travel",
+		"items": [
+			{
+				"id": "allahu-akbar-travel",
+				"arabic": "اللهُ أَكْبَر، اللهُ أَكْبَر، اللهُ أَكْبَر، سُبْحَانَ الَّذِي سَخَّرَ لَنَا هٰذَا وَمَا كُنَّا لَهُ مُقْرِنِيْنَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُوْنَ",
+				"transliteration": "Allahu Akbar, Allahu Akbar, Allahu Akbar. Subhanalladzi sakhkhara lana hadza wa ma kunna lahu muqrinin, wa inna ila rabbina lamunqalibun",
+				"translationId": "Allah Maha Besar, Allah Maha Besar, Allah Maha Besar. Maha Suci Allah yang menundukkan kendaraan ini untuk kami, padahal kami tidak mampu menguasainya, dan sesungguhnya kepada Tuhan kami kami akan kembali",
+				"translationEn": "Allah is the Greatest, Allah is the Greatest, Allah is the Greatest. Glory to Him who has subjected this to us, and we could not have done it ourselves, and to our Lord we will return",
+				"count": 1
+			},
+			{
+				"id": "allahumma-sahhibna",
+				"arabic": "اللّٰهُمَّ صَحِّبْنَا فِي سَفَرِنَا وَاخْلُفْنَا فِي أَهْلِنَا",
+				"transliteration": "Allahumma sahhibna fi safarina wakhlufna fi ahlina",
+				"translationId": "Ya Allah, temani kami dalam perjalanan kami dan gantikanlah kami dalam (menjaga) keluarga kami",
+				"translationEn": "O Allah, accompany us in our journey and take care of our family in our absence",
+				"count": 1
+			}
+		]
+	},
+	{
+		"id": "distress",
+		"titleId": "Kegelisahan & Kesedihan",
+		"titleEn": "Distress & Sorrow",
+		"items": [
+			{
+				"id": "la-ilaha-azim",
+				"arabic": "لَا إِلٰهَ إِلَّا اللهُ الْعَظِيْمُ الْحَلِيْمُ، لَا إِلٰهَ إِلَّا اللهُ رَبُّ الْعَرْشِ الْعَظِيْم، لَا إِلٰهَ إِلَّا اللهُ رَبُّ السَّمٰوَاتِ وَرَبُّ الْأَرْضِ وَرَبُّ الْعَرْشِ الْكَرِيْم",
+				"transliteration": "La ilaha illallahul 'azhimul halim, la ilaha illallahu rabbul 'arsyil 'azhim, la ilaha illallahu rabbus samawati wa rabbul ardhi wa rabbul 'arsyil karim",
+				"translationId": "Tiada Tuhan selain Allah Yang Maha Agung dan Maha Penyantun. Tiada Tuhan selain Allah, Tuhan Arsy yang Agung. Tiada Tuhan selain Allah, Tuhan langit, Tuhan bumi, dan Tuhan Arsy yang Mulia",
+				"translationEn": "There is no deity except Allah, the Magnificent, the Forbearing. There is no deity except Allah, Lord of the Mighty Throne. There is no deity except Allah, Lord of the heavens, Lord of the earth, and Lord of the Noble Throne",
+				"count": 1
+			}
+		]
+	}
+]
