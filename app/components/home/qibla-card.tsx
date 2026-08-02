@@ -18,7 +18,7 @@ export function QiblaCard() {
 		navigator.geolocation.getCurrentPosition(
 			(pos) =>
 				setGeo({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
-			() => {},
+			() => { },
 			{ timeout: 5000 },
 		);
 	}, [mounted]);
@@ -35,7 +35,7 @@ export function QiblaCard() {
 
 	return (
 		<Link
-			to="/prayer-times"
+			to="/prayer"
 			className="group flex flex-col items-center justify-center gap-1 rounded-2xl bg-surface-low p-5 text-center transition-colors hover:bg-surface dark:bg-surface"
 		>
 			<span className="flex size-12 items-center justify-center rounded-full bg-card text-gold shadow-[0_8px_40px_rgba(26,28,25,0.04)]">

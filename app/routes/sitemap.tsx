@@ -1,12 +1,12 @@
 import type { Route } from "./+types/sitemap";
 import { SITE_URL } from "@/lib/seo";
 
-export function loader({}: Route.LoaderArgs) {
+export function loader({ }: Route.LoaderArgs) {
 	const paths = [
 		"/",
 		"/quran",
 		"/hadith",
-		"/prayer-times",
+		"/doa",
 		"/asmaul-husna",
 		"/prayer",
 		"/settings",

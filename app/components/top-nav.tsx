@@ -1,5 +1,6 @@
 import { Languages, Moon, Sun } from "lucide-react";
 import { NavLink } from "react-router";
+import logo from "@/assets/logo.png";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
 
@@ -19,8 +20,11 @@ export function TopNav() {
 		<header className="sticky top-0 z-40 hidden md:block">
 			<div className="border-b border-border/60 bg-background/70 backdrop-blur-xl">
 				<div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-8">
-					<NavLink to="/" className="font-serif text-xl font-semibold tracking-tight text-foreground">
-						{t("appName")}
+					<NavLink to="/" className="flex items-center gap-2">
+						<img src={logo} alt="" className="size-12 rounded-full object-cover" />
+						<span className="font-serif text-xl font-semibold tracking-tight text-foreground">
+							{t("appName")}
+						</span>
 					</NavLink>
 
 					<nav className="flex items-center gap-1" aria-label="Primary">

@@ -38,7 +38,7 @@ function AzkarItemCard({ item, lang }: { item: AzkarItem; lang: string }) {
 						<button
 							type="button"
 							onClick={() => setCount((c) => Math.min(c + 1, target))}
-							className="inline-flex min-w-[84px] items-center justify-center gap-1.5 rounded-md bg-gold-surface px-3 py-1.5 text-sm font-semibold text-teal transition-colors hover:bg-gold-surface/70"
+							className="inline-flex min-w-[84px] items-center justify-center gap-1.5 rounded-md bg-gold-surface px-3 py-1.5 text-sm font-semibold text-teal transition-colors hover:bg-accent70"
 						>
 							{t("azkar.count")}
 							<span className="tabular-nums">{count}/{target}</span>
@@ -60,10 +60,10 @@ function AzkarItemCard({ item, lang }: { item: AzkarItem; lang: string }) {
 	);
 }
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
 	const title = "Azkar — Kumpulan Doa & Dzikir Harian | Moozhaf";
 	const description =
-		"Kumpulan dzikir dan doa harian lengkap dengan teks Arab, latin, terjemahan, dan jumlah pengulangan. Dzikir pagi petang, setelah shalat, sebelum tidur, dan lainnya.";
+		"Kumpulan dzikir dan doa harian lengkap dengan teks Arab, latin, terjemahan, dan jumlah pengulangan. Dzikir pagi dan petang, setelah shalat, sebelum tidur, dan lainnya.";
 	const url = `${SITE_URL}/prayer`;
 
 	return [
@@ -81,7 +81,7 @@ export default function Azkar() {
 	const { t, lang } = useI18n();
 
 	return (
-		<div className="mx-auto max-w-3xl space-y-8 pt-4 md:pt-8">
+		<div className="mx-auto max-w-6xl space-y-8 pt-4 md:pt-8">
 			<section className="space-y-4 text-center">
 				<h1 className="font-serif text-3xl font-semibold tracking-[-0.48px] text-teal md:text-4xl">
 					{t("azkar.title")}

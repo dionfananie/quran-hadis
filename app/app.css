@@ -38,6 +38,7 @@
 	/* Design accents */
 	--color-gold: var(--gold);
 	--color-teal: var(--teal);
+	--color-green: var(--green);
 
 	/* Figma Sacred Emerald — primary container for gradients */
 	--color-primary-container: var(--primary-container);
@@ -118,11 +119,14 @@
 	/* Design accents */
 	--gold: #c5a059;
 	--teal: #004d40;
+	--green: #004d40;
+	
 
 	/* Figma Sacred Emerald tokens */
 	--primary-container: #004d40;
 	--gold-border: rgba(184, 134, 11, 0.3);
-	--gold-surface: rgba(184, 134, 11, 0.05);
+	--gold-surface: rgba(184 134 11, 0.24);
+	
 }
 
 .dark {
@@ -167,6 +171,7 @@
 	--surface-bright: #383939;
 
 	--gold: #e9c176;
+	--green: #0e2c2c;
 	--teal: #94d3c1;
 
 	/* Figma Sacred Emerald tokens (dark) */
@@ -192,6 +197,8 @@
 
 	body {
 		background-color: var(--background);
+		background-image: url("./assets/bg.svg");
+		background-size: 60px 60px;
 		color: var(--foreground);
 		@apply font-sans antialiased;
 	}

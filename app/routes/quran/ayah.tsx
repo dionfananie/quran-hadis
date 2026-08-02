@@ -6,11 +6,13 @@ import { getSurah, getSurahMeta } from "@/lib/data/quran";
 import type { Ayah, Surah } from "@/lib/data/types";
 import { useI18n } from "@/lib/i18n";
 import { SITE_URL } from "@/lib/seo";
+import { TafsirCard } from "@/components/quran/tafsir-card";
+import { ShareDialog } from "@/components/share-dialog";
 
 export function meta({ params, data }: Route.MetaArgs) {
 	const surah = data?.surah;
 	const ayah = data?.ayahIndex ? surah?.ayahs.find((a) => a.number.inSurah === data.ayahIndex) : undefined;
-	if (!surah || !ayah) return [{ title: "Ayah" }];
+	if (!surah || !ayah) return [{ title: "Ayat tidak ditemukan — Moozhaf" }];
 	const title = `${surah.name}:${ayah.number.inSurah} — ${ayah.translation.slice(0, 80)} | Moozhaf`;
 	const description = ayah.tafsir?.kemenag?.short?.slice(0, 160) ?? ayah.translation;
 	const url = `${SITE_URL}/quran/${params.number}/${params.ayah}`;
@@ -30,7 +32,7 @@ export function loader({ params }: Route.LoaderArgs) {
 	const number = Number(params.number);
 	const ayahIndex = Number(params.ayah);
 	if (!number || number < 1 || number > 114 || !ayahIndex || ayahIndex < 1) {
-		throw new Response("Ayah tidak ditemukan", { status: 404 });
+		throw new Response("Ayat tidak ditemukan", { status: 404 });
 	}
 	return { number, ayahIndex };
 }
@@ -39,35 +41,38 @@ function AyahPlayer({ ayah, surah }: { ayah: Ayah; surah: Surah }) {
 	const { t } = useI18n();
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const [playing, setPlaying] = useState(false);
-	const [reciter, setReciter] = useState<string>("alafasy");
+	const [shareOpen, setShareOpen] = useState(false);
+	const [reciter, setReciter] = useState<string>(() => Object.keys(ayah.audio)[0] ?? "");
 
 	const reciters = Object.keys(ayah.audio);
 	const audioUrl = ayah.audio[reciter] ?? Object.values(ayah.audio)[0];
+
+	// Re-point the source whenever the reciter changes; if the user was already
+	// listening, resume playback so the switcher feels instant.
+	useEffect(() => {
+		const a = audioRef.current;
+		if (!a) return;
+		const wasPlaying = !a.paused;
+		a.src = audioUrl;
+		if (wasPlaying) void a.play();
+	}, [audioUrl]);
 
 	const toggle = () => {
 		if (!audioUrl) return;
 		const a = audioRef.current ?? new Audio(audioUrl);
 		audioRef.current = a;
-		if (playing) {
-			a.pause();
-			setPlaying(false);
-		} else {
+		a.onplay = () => setPlaying(true);
+		a.onpause = () => setPlaying(false);
+		a.onended = () => setPlaying(false);
+		if (a.paused) {
 			void a.play();
-			setPlaying(true);
-			a.onended = () => setPlaying(false);
+		} else {
+			a.pause();
 		}
 	};
 
-	const share = async () => {
-		const url = `${window.location.origin}/quran/${surah.number}/${ayah.number.inSurah}`;
-		const payload = { title: `${surah.name}:${ayah.number.inSurah}`, text: ayah.translation, url };
-		if (typeof navigator !== "undefined" && "share" in navigator) {
-			try { await navigator.share(payload); return; } catch { /* fall through */ }
-		}
-		if (typeof navigator !== "undefined" && "clipboard" in navigator) {
-			try { await navigator.clipboard.writeText(`${ayah.translation} ${url}`); } catch { /* ignore */ }
-		}
-	};
+	const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/quran/${surah.number}/${ayah.number.inSurah}`;
+	const shareText = `${ayah.arab}\n\n${ayah.translation}\n\n${t("common_shareMore")}\n${shareUrl}`;
 
 	return (
 		<div className="space-y-4">
@@ -83,8 +88,8 @@ function AyahPlayer({ ayah, surah }: { ayah: Ayah; surah: Surah }) {
 					</button>
 					<button
 						type="button"
-						onClick={share}
-						className="inline-flex items-center gap-1.5 rounded-lg border border-gold-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-gold-surface hover:text-foreground"
+						onClick={() => setShareOpen(true)}
+						className="inline-flex items-center gap-1.5 rounded-lg border border-gold-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accenthover:text-foreground"
 					>
 						<Share2 className="size-4" />
 						{t("common_share")}
@@ -98,17 +103,24 @@ function AyahPlayer({ ayah, surah }: { ayah: Ayah; surah: Surah }) {
 							key={r}
 							type="button"
 							onClick={() => setReciter(r)}
-							className={`rounded-lg px-3 py-1 text-xs capitalize transition-colors ${
-								reciter === r
-									? "bg-teal text-white"
-									: "bg-gold-surface text-muted-foreground hover:text-foreground"
-							}`}
+							className={`rounded-lg px-3 py-1 text-xs capitalize transition-colors ${reciter === r
+								? "bg-teal text-white"
+								: "bg-gold-surface text-muted-foreground hover:text-foreground"
+								}`}
 						>
 							{r}
 						</button>
 					))}
 				</div>
 			)}
+
+			<ShareDialog
+				open={shareOpen}
+				onOpenChange={setShareOpen}
+				title={`${surah.name}:${ayah.number.inSurah}`}
+				text={shareText}
+				url={shareUrl}
+			/>
 		</div>
 	);
 }
@@ -162,7 +174,7 @@ export default function QuranAyah({ loaderData, params }: Route.ComponentProps) 
 	}
 
 	return (
-		<div className="mx-auto max-w-3xl space-y-8 pt-4 md:pt-8">
+		<div className="mx-auto max-w-6xl space-y-8 pt-4 md:pt-8">
 			{/* Breadcrumb */}
 			<nav className="flex items-center gap-2 text-sm text-muted-foreground">
 				<Link to="/" className="hover:text-foreground">Moozhaf</Link>
@@ -217,27 +229,7 @@ export default function QuranAyah({ loaderData, params }: Route.ComponentProps) 
 			</div>
 
 			{/* Tafsir */}
-			{ayah.tafsir?.kemenag && (
-				<div className="rounded-2xl border border-gold-border bg-card p-6">
-					<h2 className="mb-4 font-serif text-xl font-semibold text-teal">
-						{t("quran.tafsir")} Kemenag
-					</h2>
-					<div className="space-y-4">
-						<div>
-							<h3 className="mb-2 font-semibold text-sm text-gold">{t("quran.shortTafsir")}</h3>
-							<p className="text-sm leading-relaxed text-muted-foreground">
-								{ayah.tafsir.kemenag.short}
-							</p>
-						</div>
-						<div>
-							<h3 className="mb-2 font-semibold text-sm text-gold">{t("quran.longTafsir")}</h3>
-							<p className="text-sm leading-relaxed text-muted-foreground">
-								{ayah.tafsir.kemenag.long}
-							</p>
-						</div>
-					</div>
-				</div>
-			)}
+			{ayah.tafsir && <TafsirCard tafsir={ayah.tafsir} />}
 
 			{/* Navigation */}
 			<div className="flex items-center justify-between gap-4 border-t border-gold-border pt-6">

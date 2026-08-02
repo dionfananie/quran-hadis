@@ -5,8 +5,8 @@ import { getHadithBooks } from "@/lib/data/hadith";
 import { useI18n } from "@/lib/i18n";
 import { SITE_URL } from "@/lib/seo";
 
-export function meta({}: Route.MetaArgs) {
-	const title = "Koleksi Hadits Shahih — Sahih Bukhari, Muslim & Lainnya | Moozhaf";
+export function meta({ }: Route.MetaArgs) {
+	const title = "Koleksi Hadits Shahih — Shahih Bukhari, Muslim & Lainnya | Moozhaf";
 	const description =
 		"Baca kumpulan hadits shahih dari Shahih Bukhari, Shahih Muslim, Sunan Abu Daud, dan kitab-kitab hadits lainnya lengkap dengan teks Arab dan terjemahan bahasa Indonesia.";
 	const url = `${SITE_URL}/hadith`;
@@ -40,7 +40,7 @@ export default function HadithIndex() {
 					<Link
 						key={book.id}
 						to={`/hadith/${book.id}`}
-						className="group flex items-center gap-4 rounded-xl border border-gold-border/50 bg-card p-5 transition-colors hover:border-gold-border hover:bg-gold-surface/30"
+						className="group flex items-center gap-4 rounded-xl border border-gold-border/50 bg-card p-5 transition-colors hover:border-gold-border hover:bg-accent"
 					>
 						<span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-gold-surface text-teal">
 							<ScrollText className="size-5" strokeWidth={1.75} />

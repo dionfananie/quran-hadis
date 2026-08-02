@@ -92,7 +92,7 @@ export default function HadithBook({ loaderData }: Route.ComponentProps) {
 	const locale = lang === "id" ? "id-ID" : "en-US";
 
 	return (
-		<div className="mx-auto max-w-3xl space-y-8 pt-4 md:pt-8">
+		<div className="mx-auto max-w-6xl space-y-8 pt-4 md:pt-8">
 			{/* Breadcrumb */}
 			<nav className="flex items-center gap-2 text-sm text-muted-foreground">
 				<Link to="/" className="hover:text-foreground">
@@ -109,9 +109,6 @@ export default function HadithBook({ loaderData }: Route.ComponentProps) {
 			{/* Book header */}
 			<div className="rounded-2xl border border-gold-border bg-card p-8">
 				<div className="flex flex-col items-center gap-4 text-center">
-					<span className="flex size-14 items-center justify-center rounded-full bg-gold-surface font-serif text-lg font-semibold text-teal">
-						{book.total.toLocaleString(locale)}
-					</span>
 					<div>
 						<h1 className="font-serif text-3xl font-semibold tracking-[-0.48px] text-teal">
 							{lang === "id" ? book.nameId : book.nameEn}
@@ -130,7 +127,7 @@ export default function HadithBook({ loaderData }: Route.ComponentProps) {
 						type="button"
 						onClick={() => goToNumber(start - PAGE_SIZE)}
 						disabled={page === 0}
-						className="inline-flex items-center gap-1.5 rounded-lg border border-gold-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-gold-surface hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+						className="inline-flex items-center gap-1.5 rounded-lg border border-gold-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accenthover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
 					>
 						<ArrowLeft className="size-4" />
 						{t("common_previous")}
@@ -143,7 +140,7 @@ export default function HadithBook({ loaderData }: Route.ComponentProps) {
 						type="button"
 						onClick={() => goToNumber(start + PAGE_SIZE)}
 						disabled={page >= pageCount - 1}
-						className="inline-flex items-center gap-1.5 rounded-lg border border-gold-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-gold-surface hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+						className="inline-flex items-center gap-1.5 rounded-lg border border-gold-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accenthover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
 					>
 						{t("common_next")}
 						<ArrowRight className="size-4" />
@@ -195,7 +192,7 @@ export default function HadithBook({ loaderData }: Route.ComponentProps) {
 						<Link
 							key={h.number}
 							to={`/hadith/${book.id}/${h.number}`}
-							className="group block rounded-xl border border-gold-border/50 bg-card p-5 transition-colors hover:border-gold-border hover:bg-gold-surface/30"
+							className="group block rounded-xl border border-gold-border/50 bg-card p-5 transition-colors hover:border-gold-border hover:bg-accent"
 						>
 							<div className="flex items-start gap-4">
 								<span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gold-surface text-xs font-semibold text-teal">

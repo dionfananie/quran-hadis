@@ -116,7 +116,7 @@ export function LastReadGrid() {
 			{/* Bookmark placeholder card */}
 			<Link
 				to="/quran"
-				className="flex flex-1 flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed border-gold-border px-6 py-11 transition-colors hover:bg-gold-surface"
+				className="flex flex-1 flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed border-gold-border px-6 py-11 transition-colors hover:bg-accent"
 			>
 				<div className="flex size-12 items-center justify-center rounded-xl bg-gold-surface">
 					<BookmarkPlus className="size-[21px] text-gold" />

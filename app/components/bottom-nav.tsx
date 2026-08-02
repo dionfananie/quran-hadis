@@ -13,7 +13,7 @@ const items: NavItem[] = [
 	{ to: "/", labelKey: "nav.home", icon: Home, end: true },
 	{ to: "/quran", labelKey: "nav.quran", icon: BookOpen },
 	{ to: "/hadith", labelKey: "nav.hadith", icon: ScrollText },
-	{ to: "/prayer-times", labelKey: "nav.prayers", icon: CalendarClock },
+	{ to: "/prayer", labelKey: "nav.prayers", icon: CalendarClock },
 	{ to: "/more", labelKey: "nav.more", icon: MoreHorizontal },
 ];
 

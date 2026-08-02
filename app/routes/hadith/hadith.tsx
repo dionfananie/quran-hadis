@@ -6,6 +6,7 @@ import { getHadith, getHadithBook } from "@/lib/data/hadith";
 import type { Hadith } from "@/lib/data/types";
 import { useI18n } from "@/lib/i18n";
 import { SITE_URL } from "@/lib/seo";
+import { ShareDialog } from "@/components/share-dialog";
 
 export function meta({ params, data }: Route.MetaArgs) {
 	const book = data?.book;
@@ -42,6 +43,7 @@ export default function HadithDetail({ loaderData }: Route.ComponentProps) {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(false);
 	const [copied, setCopied] = useState(false);
+	const [shareOpen, setShareOpen] = useState(false);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -77,25 +79,8 @@ export default function HadithDetail({ loaderData }: Route.ComponentProps) {
 		}
 	};
 
-	const share = async () => {
-		const url = `${window.location.origin}/hadith/${book.id}/${number}`;
-		const text = hadith ? `${hadith.id} ${url}` : url;
-		if (typeof navigator !== "undefined" && "share" in navigator) {
-			try {
-				await navigator.share({ title: `${book.nameId} #${number}`, text, url });
-				return;
-			} catch {
-				// fall through to clipboard
-			}
-		}
-		if (typeof navigator !== "undefined" && "clipboard" in navigator) {
-			try {
-				await navigator.clipboard.writeText(text);
-			} catch {
-				// ignore clipboard errors
-			}
-		}
-	};
+	const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/hadith/${book.id}/${number}`;
+	const shareText = hadith ? `${hadith.arab}\n\n${hadith.id}\n\n${t("common_shareMore")}\n${shareUrl}` : shareUrl;
 
 	if (loading) {
 		return (
@@ -125,7 +110,7 @@ export default function HadithDetail({ loaderData }: Route.ComponentProps) {
 	}
 
 	return (
-		<div className="mx-auto max-w-3xl space-y-8 pt-4 md:pt-8">
+		<div className="mx-auto max-w-6xl space-y-8 pt-4 md:pt-8">
 			{/* Breadcrumb */}
 			<nav className="flex items-center gap-2 text-sm text-muted-foreground">
 				<Link to="/" className="hover:text-foreground">
@@ -160,15 +145,15 @@ export default function HadithDetail({ loaderData }: Route.ComponentProps) {
 						<button
 							type="button"
 							onClick={copy}
-							className="inline-flex items-center gap-1.5 rounded-lg border border-gold-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-gold-surface hover:text-foreground"
+							className="inline-flex items-center gap-1.5 rounded-lg border border-gold-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accenthover:text-foreground"
 						>
 							{copied ? <Check className="size-4 text-teal" /> : <Copy className="size-4" />}
 							{copied ? t("common_copied") : t("common_copy")}
 						</button>
 						<button
 							type="button"
-							onClick={share}
-							className="inline-flex items-center gap-1.5 rounded-lg border border-gold-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-gold-surface hover:text-foreground"
+							onClick={() => setShareOpen(true)}
+							className="inline-flex items-center gap-1.5 rounded-lg border border-gold-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accenthover:text-foreground"
 						>
 							<Share2 className="size-4" />
 							{t("common_share")}
@@ -208,6 +193,14 @@ export default function HadithDetail({ loaderData }: Route.ComponentProps) {
 					<div />
 				)}
 			</div>
+
+			<ShareDialog
+				open={shareOpen}
+				onOpenChange={setShareOpen}
+				title={`${lang === "id" ? book.nameId : book.nameEn} #${number}`}
+				text={shareText}
+				url={shareUrl}
+			/>
 		</div>
 	);
 }

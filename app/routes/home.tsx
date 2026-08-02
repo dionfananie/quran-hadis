@@ -6,7 +6,6 @@ import { SearchDialog } from "@/components/search-dialog";
 import { ContinueReadingCard, LastReadGrid } from "@/components/home/last-read-card";
 import { DailyVerseCard } from "@/components/home/daily-verse-card";
 import { PrayerMarquee } from "@/components/home/prayer-marquee";
-import { SelectTafsir } from "@/components/home/select-tafsir";
 import { getDailyVerse } from "@/lib/data/quran";
 import { useI18n } from "@/lib/i18n";
 import { SITE_URL } from "@/lib/seo";
@@ -136,9 +135,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 				limit={3}
 				afterLimit={6}
 				interstitial={
-					<div className="space-y-10 py-2">
+					<div className="py-2">
 						<DailyVerseCard verse={daily} />
-						<SelectTafsir surah={daily.surah} ayah={daily.ayah} />
 					</div>
 				}
 			/>

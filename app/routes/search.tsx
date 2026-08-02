@@ -40,7 +40,7 @@ function ResultCard({ result }: { result: VectorSearchResult }) {
 	return (
 		<Link
 			to={result.href}
-			className="group block rounded-xl border border-gold-border/50 bg-card p-5 transition-colors hover:border-gold-border hover:bg-gold-surface/30"
+			className="group block rounded-xl border border-gold-border/50 bg-card p-5 transition-colors hover:border-gold-border hover:bg-accent"
 		>
 			<div className="flex items-start gap-4">
 				<div className="min-w-0 flex-1 space-y-2">
@@ -70,7 +70,7 @@ export function meta({ data }: Route.MetaArgs) {
 		? `Pencarian AI: "${q}" — Al-Qur'an | Moozhaf`
 		: "Pencarian AI Al-Qur'an — Pahami Makna, Bukan Sekadar Kata | Moozhaf";
 	const description =
-		"Cari ayat, tafsir, dan doa dengan bahasa natural. Pencarian semantik berbasis AI yang memahami makna dan konteks Al-Qur'an.";
+		"Cari ayat, tafsir, dan doa dengan bahasa sehari-hari. Pencarian AI yang memahami makna dan konteks Al-Qur'an.";
 	const url = `${SITE_URL}/search${q ? `?q=${encodeURIComponent(q)}` : ""}`;
 
 	return [
@@ -146,7 +146,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
 	const hasQuery = q.trim().length >= MIN_QUERY_LENGTH;
 
 	return (
-		<div className="mx-auto max-w-3xl space-y-8 pt-4 md:pt-8">
+		<div className="mx-auto max-w-6xl space-y-8 pt-4 md:pt-8">
 			{/* Breadcrumb */}
 			<nav className="flex items-center gap-2 text-sm text-muted-foreground">
 				<Link to="/" className="hover:text-foreground">
@@ -227,7 +227,7 @@ export default function SearchPage({ loaderData }: Route.ComponentProps) {
 						</div>
 					) : results.length === 0 ? (
 						<div className="rounded-2xl border border-gold-border/50 bg-card p-10 text-center text-muted-foreground">
-							{t("common_notFound")}
+							{t("search.emptyResults").replace("{q}", q)}
 						</div>
 					) : (
 						<div className="space-y-3">

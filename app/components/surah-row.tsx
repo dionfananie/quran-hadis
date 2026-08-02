@@ -8,7 +8,7 @@ export function SurahRow({ surah }: { surah: SurahIndexEntry }) {
 	return (
 		<Link
 			to={`/quran/${surah.number}`}
-			className="flex items-center gap-4 rounded-lg border border-gold-border/50 bg-card p-4 transition-colors hover:bg-gold-surface/50 hover:border-gold-border"
+			className="flex items-center gap-4 rounded-lg border border-gold-border/50 bg-card p-4 transition-colors hover:bg-accent hover:border-gold-border"
 		>
 			<span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-gold-surface font-serif text-sm font-semibold text-teal">
 				{surah.number}

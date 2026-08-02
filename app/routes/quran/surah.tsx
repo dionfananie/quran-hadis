@@ -8,7 +8,7 @@ import { SITE_URL } from "@/lib/seo";
 
 export function meta({ params, data }: Route.MetaArgs) {
 	const surah = data?.surah;
-	if (!surah) return [{ title: "Surah" }];
+	if (!surah) return [{ title: "Surah tidak ditemukan — Moozhaf" }];
 	const title = `${surah.name} (${surah.translation}) — Baca Surah ${surah.name} | Moozhaf`;
 	const description = surah.description.slice(0, 160);
 	const url = `${SITE_URL}/quran/${params.number}`;
@@ -103,7 +103,7 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 	}
 
 	return (
-		<div className="mx-auto max-w-3xl space-y-8 pt-4 md:pt-8">
+		<div className="mx-auto max-w-6xl space-y-8 pt-4 md:pt-8">
 			{/* Breadcrumb */}
 			<nav className="flex items-center gap-2 text-sm text-muted-foreground">
 				<Link to="/" className="hover:text-foreground">
@@ -172,7 +172,7 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 					<Link
 						key={ayah.number.inSurah}
 						to={`/quran/${surah.number}/${ayah.number.inSurah}`}
-						className="group block rounded-xl border border-gold-border/50 bg-card p-5 transition-colors hover:bg-gold-surface/30"
+						className="group block rounded-xl border border-gold-border/50 bg-card p-5 transition-colors hover:bg-accent"
 					>
 						<div className="flex items-start gap-4">
 							<span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gold-surface text-xs font-semibold text-teal">

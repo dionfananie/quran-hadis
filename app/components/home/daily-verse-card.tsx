@@ -2,11 +2,15 @@ import { useRef, useState } from "react";
 import { Pause, Play, Share2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import type { DailyVerse } from "@/lib/data/types";
+import { SelectTafsir } from "@/components/home/select-tafsir";
+import { ShareDialog } from "@/components/share-dialog";
+import screenBg from "@/assets/screen.png";
 
 export function DailyVerseCard({ verse }: { verse: DailyVerse }) {
 	const { t } = useI18n();
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const [playing, setPlaying] = useState(false);
+	const [shareOpen, setShareOpen] = useState(false);
 
 	const toggle = () => {
 		if (!verse.audio) return;
@@ -22,35 +26,18 @@ export function DailyVerseCard({ verse }: { verse: DailyVerse }) {
 		}
 	};
 
-	const share = async () => {
-		const url = `${window.location.origin}/quran/${verse.surah}/${verse.ayah}`;
-		const payload = {
-			title: `${verse.surah}:${verse.ayah}`,
-			text: verse.translation,
-			url,
-		};
-		if (typeof navigator !== "undefined" && "share" in navigator) {
-			try {
-				await navigator.share(payload);
-				return;
-			} catch {
-				// fall through to clipboard
-			}
-		}
-		if (typeof navigator !== "undefined" && "clipboard" in navigator) {
-			try {
-				await navigator.clipboard.writeText(`${verse.translation} ${url}`);
-			} catch {
-				// ignore
-			}
-		}
-	};
+	const url = `${typeof window !== "undefined" ? window.location.origin : ""}/quran/${verse.surah}/${verse.ayah}`;
+	const shareText = `${verse.arab}\n\n${verse.translation}\n\n${t("common_shareMore")}\n${url}`;
 
 	return (
 		<section
 			aria-label={t("home.dailyVerse")}
-			className="relative flex flex-col gap-12 overflow-clip rounded-2xl border border-gold-border bg-teal p-12 md:flex-row"
+			className="relative flex flex-col gap-12 overflow-clip rounded-2xl border border-gold-border bg-green p-12 md:flex-row"
 		>
+
+			{/* Readability overlay */}
+			<div aria-hidden className="absolute inset-0 bg-teal/45" />
+
 			{/* Decorative SVG background */}
 			<div className="pointer-events-none absolute -bottom-8 -right-4 size-32 text-gold/20">
 				<svg viewBox="0 0 128 128" fill="none" className="size-full">
@@ -68,7 +55,7 @@ export function DailyVerseCard({ verse }: { verse: DailyVerse }) {
 			</div>
 
 			{/* Main content */}
-			<div className="relative flex w-full max-w-[686px] flex-col gap-4 pt-[5px]">
+			<div className="relative flex w-full flex-col gap-4 pt-[5px]">
 				<p className="text-xs font-bold uppercase tracking-[0.1em] text-gold">
 					{t("home.dailyVerse")}
 				</p>
@@ -97,14 +84,27 @@ export function DailyVerseCard({ verse }: { verse: DailyVerse }) {
 					)}
 					<button
 						type="button"
-						onClick={share}
-						className="inline-flex items-center gap-1 border border-gold-border px-6 py-4 text-xs font-bold uppercase tracking-[0.1em] text-gold shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)] transition-colors hover:bg-gold-surface"
+						onClick={() => setShareOpen(true)}
+						className="inline-flex items-center gap-1 border border-gold-border px-6 py-4 text-xs font-bold uppercase tracking-[0.1em] text-gold shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)] transition-colors hover:bg-accent"
 					>
 						<Share2 className="size-4" />
 						{t("common_share")}
 					</button>
 				</div>
+
+				{/* Select Tafsir */}
+				<div className="border-t border-white/10 pt-6">
+					<SelectTafsir surah={verse.surah} ayah={verse.ayah} inverse />
+				</div>
 			</div>
+
+			<ShareDialog
+				open={shareOpen}
+				onOpenChange={setShareOpen}
+				title={`${verse.surah}:${verse.ayah}`}
+				text={shareText}
+				url={url}
+			/>
 		</section>
 	);
 }

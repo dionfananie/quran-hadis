@@ -1,5 +1,6 @@
 import { Languages, Moon, Sun } from "lucide-react";
 import { NavLink } from "react-router";
+import logo from "@/assets/logo.png";
 import { useI18n } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
 
@@ -11,8 +12,11 @@ export function MobileTopBar() {
 		<header className="sticky top-0 z-40 md:hidden">
 			<div className="border-b border-border/60 bg-background/70 backdrop-blur-xl">
 				<div className="flex h-14 items-center justify-between px-4">
-					<NavLink to="/" className="font-serif text-lg font-semibold tracking-tight">
-						{t("appName")}
+					<NavLink to="/" className="flex items-center gap-2">
+						<img src={logo} alt="" className="size-6 rounded-full object-cover" />
+						<span className="font-serif text-lg font-semibold tracking-tight">
+							{t("appName")}
+						</span>
 					</NavLink>
 					<div className="flex items-center gap-1">
 						<button

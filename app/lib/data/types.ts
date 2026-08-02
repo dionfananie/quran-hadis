@@ -23,13 +23,19 @@ export interface AyahMeta {
 	sajda: { recommended: boolean; obligatory: boolean } | null;
 }
 
+export interface AyahTafsir {
+	kemenag?: { short: string; long: string };
+	quraish?: string;
+	jalalayn?: string;
+}
+
 export interface Ayah {
 	number: { inQuran: number; inSurah: number };
 	arab: string;
 	translation: string;
 	audio: Record<string, string>;
 	image: { primary: string; secondary: string };
-	tafsir: { kemenag: { short: string; long: string } };
+	tafsir: AyahTafsir;
 	meta: AyahMeta;
 }
 
