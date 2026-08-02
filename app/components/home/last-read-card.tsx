@@ -1,28 +1,31 @@
 import { ArrowRight, BookmarkPlus } from "lucide-react";
 import { Link } from "react-router";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useReadingHistory } from "@/lib/hooks";
+import { useLastRead, useMounted, useReadingHistory } from "@/lib/hooks";
 import { useI18n } from "@/lib/i18n";
 import { getSurahMeta } from "@/lib/data/quran";
-import { useMounted } from "@/lib/hooks";
+import { cn } from "@/lib/utils";
 
 export function ContinueReadingCard() {
 	const { t } = useI18n();
 	const mounted = useMounted();
-	const [history] = useReadingHistory();
+	const [last] = useLastRead();
 
 	if (!mounted) {
 		return <Skeleton className="h-4 w-28 rounded" />;
 	}
 
-	if (history.length === 0) return null;
+	if (!last) return null;
+
+	const surah = getSurahMeta(last.surah);
 
 	return (
 		<Link
-			to="/quran"
-			className="inline-flex shrink-0 items-center gap-1 text-xs font-bold uppercase tracking-[0.05em] text-gold hover:underline"
+			to={`/quran/${last.surah}/${last.ayah}`}
+			aria-label={`${t("common_continue")}: ${surah?.name ?? ""} ${t("common_verse")} ${last.ayah}`}
+			className="inline-flex shrink-0 items-center gap-1 text-xs font-bold uppercase tracking-[0.05em] text-gold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold hover:underline"
 		>
-			{t("home.viewHistory")}
+			{t("common_continue")}
 			<ArrowRight className="size-2.5" />
 		</Link>
 	);
@@ -71,10 +74,13 @@ export function LastReadGrid() {
 					<Link
 						key={`${item.surah}-${item.ayah}`}
 						to={`/quran/${surah.number}/${item.ayah}`}
-						className="group relative flex flex-1 flex-col overflow-clip rounded-lg border border-gold-border bg-card p-6 transition-colors hover:bg-accent"
+						className="group relative flex flex-1 flex-col overflow-clip rounded-lg border border-gold-border bg-card p-6 transition-colors focus-visible:outline-2 focus-visible:outline-gold/70 hover:bg-accent"
 					>
-						{/* Subtle corner motif */}
-						<div className="absolute right-0 top-0 size-12 rounded-tr-lg border-r-2 border-t-2 border-transparent border-t-gold/0 border-r-gold/0" />
+						{/* Gold hairline accent */}
+						<div
+							aria-hidden
+							className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent"
+						/>
 
 						{/* Arabic watermark background */}
 						{surah.arabic && (
@@ -102,7 +108,14 @@ export function LastReadGrid() {
 							</div>
 
 							{/* Progress bar */}
-							<div className="h-1 w-full overflow-clip rounded-xl bg-[#e2e3de]">
+							<div
+								role="progressbar"
+								aria-label={`${t("home.lastRead")} ${surah.name}:${item.ayah}`}
+								aria-valuenow={pct}
+								aria-valuemin={0}
+								aria-valuemax={100}
+								className="h-1 w-full overflow-clip rounded-xl bg-surface-high"
+							>
 								<div
 									className="h-full rounded-xl bg-gold transition-all"
 									style={{ width: `${pct}%` }}
@@ -116,7 +129,10 @@ export function LastReadGrid() {
 			{/* Bookmark placeholder card */}
 			<Link
 				to="/quran"
-				className="flex flex-1 flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed border-gold-border px-6 py-11 transition-colors hover:bg-accent"
+				className={cn(
+					"flex flex-1 flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed border-gold-border px-6 py-11 transition-colors focus-visible:outline-2 focus-visible:outline-gold/70 hover:bg-accent",
+					reads.length === 1 && "sm:col-span-2",
+				)}
 			>
 				<div className="flex size-12 items-center justify-center rounded-xl bg-gold-surface">
 					<BookmarkPlus className="size-[21px] text-gold" />

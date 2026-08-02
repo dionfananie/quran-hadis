@@ -44,6 +44,7 @@
 	"scripts": {
 		"build": "react-router build",
 		"data:prepare": "node scripts/prepare-data.mjs",
+		"data:tajwid": "node scripts/fetch-tajwid.mjs",
 		"cf-typegen": "wrangler types && react-router typegen",
 		"check": "tsc && react-router build && wrangler deploy --dry-run",
 		"deploy": "wrangler deploy",

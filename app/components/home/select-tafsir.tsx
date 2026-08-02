@@ -1,8 +1,11 @@
+import { useId } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
 import { useI18n, type TKey } from "@/lib/i18n";
+import { useStoredState } from "@/lib/hooks";
+import { TAFSIR_STORAGE_KEY, type TafsirId } from "@/components/quran/tafsir-card";
 
-const TAFSIRS: { id: string; nameKey: TKey; descKey: TKey }[] = [
+const TAFSIRS: { id: TafsirId; nameKey: TKey; descKey: TKey }[] = [
 	{ id: "kemenag", nameKey: "tafsir.kemenag", descKey: "tafsir.kemenag.desc" },
 	{ id: "quraish", nameKey: "tafsir.quraish", descKey: "tafsir.quraish.desc" },
 	{ id: "jalalayn", nameKey: "tafsir.jalalayn", descKey: "tafsir.jalalayn.desc" },
@@ -18,10 +21,13 @@ export function SelectTafsir({
 	inverse?: boolean;
 }) {
 	const { t } = useI18n();
+	const [, setStored] = useStoredState<TafsirId>(TAFSIR_STORAGE_KEY, "kemenag");
+	const titleId = useId();
 
 	return (
-		<div aria-label={t("home.selectTafsir")}>
+		<section aria-labelledby={titleId}>
 			<h2
+				id={titleId}
 				className={
 					inverse
 						? "font-serif text-lg font-semibold text-white"
@@ -35,7 +41,8 @@ export function SelectTafsir({
 					<Link
 						key={tf.id}
 						to={`/quran/${surah}/${ayah}`}
-						className={`group flex items-center justify-between gap-3 rounded-lg border p-4 transition-colors ${inverse
+						onClick={() => setStored(tf.id)}
+						className={`group flex items-center justify-between gap-3 rounded-lg border p-4 transition-colors focus-visible:outline-2 focus-visible:outline-gold/70 ${inverse
 								? "border-white/15 bg-white/10 hover:bg-white/15"
 								: "border-gold-border bg-card hover:bg-accent"
 							}`}
@@ -55,6 +62,6 @@ export function SelectTafsir({
 					</Link>
 				))}
 			</div>
-		</div>
+		</section>
 	);
 }

@@ -8,20 +8,21 @@ import { useI18n } from "@/lib/i18n";
 import { SITE_URL } from "@/lib/seo";
 import { TafsirCard } from "@/components/quran/tafsir-card";
 import { ShareDialog } from "@/components/share-dialog";
+import { useLastRead } from "@/lib/hooks";
 
-export function meta({ params, data }: Route.MetaArgs) {
-	const surah = data?.surah;
-	const ayah = data?.ayahIndex ? surah?.ayahs.find((a) => a.number.inSurah === data.ayahIndex) : undefined;
-	if (!surah || !ayah) return [{ title: "Ayat tidak ditemukan — Moozhaf" }];
-	const title = `${surah.name}:${ayah.number.inSurah} — ${ayah.translation.slice(0, 80)} | Moozhaf`;
-	const description = ayah.tafsir?.kemenag?.short?.slice(0, 160) ?? ayah.translation;
+export function meta({ params }: Route.MetaArgs) {
+	const number = Number(params.number);
+	const ayahIndex = Number(params.ayah);
+	const surah = getSurahMeta(number);
+	if (!surah) return [{ title: "Ayat tidak ditemukan — Moozhaf" }];
+	const title = `${surah.name}:${ayahIndex} — ${surah.translation} | Moozhaf`;
 	const url = `${SITE_URL}/quran/${params.number}/${params.ayah}`;
 
 	return [
 		{ title },
-		{ name: "description", content: description },
+		{ name: "description", content: title },
 		{ property: "og:title", content: title },
-		{ property: "og:description", content: description },
+		{ property: "og:description", content: title },
 		{ property: "og:url", content: url },
 		{ property: "og:type", content: "article" },
 		{ name: "twitter:card", content: "summary" },
@@ -131,6 +132,7 @@ export default function QuranAyah({ loaderData, params }: Route.ComponentProps) 
 	const [surah, setSurah] = useState<Awaited<ReturnType<typeof getSurah>>>(undefined);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(false);
+	const [, recordLastRead] = useLastRead();
 
 	useEffect(() => {
 		let cancelled = false;
@@ -145,6 +147,11 @@ export default function QuranAyah({ loaderData, params }: Route.ComponentProps) 
 	const ayah = surah?.ayahs.find((a) => a.number.inSurah === ayahIndex);
 	const prevAyah = ayahIndex > 1 ? ayahIndex - 1 : null;
 	const nextAyah = surah && ayahIndex < surah.ayahs.length ? ayahIndex + 1 : null;
+
+	useEffect(() => {
+		if (!surah || !ayah) return;
+		recordLastRead({ surah: number, ayah: ayahIndex, readAt: Date.now() });
+	}, [surah, ayah, number, ayahIndex, recordLastRead]);
 
 	if (loading) {
 		return (

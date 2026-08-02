@@ -3,7 +3,7 @@ import { useI18n, type TKey } from "@/lib/i18n";
 import type { AyahTafsir } from "@/lib/data/types";
 import { useStoredState } from "@/lib/hooks";
 
-type TafsirId = "kemenag" | "quraish" | "jalalayn";
+export type TafsirId = "kemenag" | "quraish" | "jalalayn";
 
 type TafsirEntry =
 	| { id: "kemenag"; short: string; long: string }
@@ -16,7 +16,7 @@ const TAFSIR_LABEL: Record<TafsirId, TKey> = {
 	jalalayn: "tafsir.jalalayn",
 };
 
-const STORAGE_KEY = "moeslem.tafsir";
+export const TAFSIR_STORAGE_KEY = "moeslem.tafsir";
 
 function buildEntries(tafsir: AyahTafsir): TafsirEntry[] {
 	const entries: TafsirEntry[] = [];
@@ -28,7 +28,7 @@ function buildEntries(tafsir: AyahTafsir): TafsirEntry[] {
 
 export function TafsirCard({ tafsir }: { tafsir: AyahTafsir }) {
 	const { t } = useI18n();
-	const [stored, setStored] = useStoredState<TafsirId>(STORAGE_KEY, "kemenag");
+	const [stored, setStored] = useStoredState<TafsirId>(TAFSIR_STORAGE_KEY, "kemenag");
 
 	const entries = buildEntries(tafsir);
 	if (entries.length === 0) return null;

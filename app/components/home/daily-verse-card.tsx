@@ -32,7 +32,7 @@ export function DailyVerseCard({ verse }: { verse: DailyVerse }) {
 	return (
 		<section
 			aria-label={t("home.dailyVerse")}
-			className="relative flex flex-col gap-12 overflow-clip rounded-2xl border border-gold-border bg-green p-12 md:flex-row"
+			className="relative flex flex-col gap-10 overflow-clip rounded-2xl border border-gold-border bg-green p-6 sm:p-8 md:flex-row md:gap-12 md:p-12"
 		>
 
 			{/* Readability overlay */}
@@ -60,8 +60,6 @@ export function DailyVerseCard({ verse }: { verse: DailyVerse }) {
 					{t("home.dailyVerse")}
 				</p>
 
-				<section className="mt-[28px]" />
-
 				<div className="drop-shadow-[0_1px_0.5px_rgba(0,0,0,0.05)]">
 					<p className="font-arabic text-5xl leading-[78px] text-white">{verse.arab}</p>
 				</div>
@@ -76,7 +74,7 @@ export function DailyVerseCard({ verse }: { verse: DailyVerse }) {
 						<button
 							type="button"
 							onClick={toggle}
-							className="inline-flex items-center gap-2 bg-gold px-6 py-4 text-xs font-bold uppercase tracking-[0.1em] text-white shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)] transition-opacity hover:opacity-90"
+							className="inline-flex items-center gap-2 rounded bg-gold px-6 py-4 text-xs font-bold uppercase tracking-[0.1em] text-foreground shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)] transition-all hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white dark:text-background"
 						>
 							{playing ? <Pause className="size-4" /> : <Play className="size-4" />}
 							{playing ? t("common_pause") : t("home.listenRecitation")}
@@ -85,7 +83,7 @@ export function DailyVerseCard({ verse }: { verse: DailyVerse }) {
 					<button
 						type="button"
 						onClick={() => setShareOpen(true)}
-						className="inline-flex items-center gap-1 border border-gold-border px-6 py-4 text-xs font-bold uppercase tracking-[0.1em] text-gold shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)] transition-colors hover:bg-accent"
+						className="inline-flex items-center gap-1 rounded border border-gold-border px-6 py-4 text-xs font-bold uppercase tracking-[0.1em] text-gold shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold hover:bg-white/10"
 					>
 						<Share2 className="size-4" />
 						{t("common_share")}
