@@ -32,7 +32,7 @@ async function derive(password: string, saltBytes: Uint8Array): Promise<Uint8Arr
 		["deriveBits"],
 	);
 	const bits = await crypto.subtle.deriveBits(
-		{ name: "PBKDF2", salt: saltBytes, iterations: ITERATIONS, hash: "SHA-256" },
+		{ name: "PBKDF2", salt: saltBytes as BufferSource, iterations: ITERATIONS, hash: "SHA-256" },
 		key,
 		KEYLEN,
 	);
@@ -46,7 +46,10 @@ const timingSafeEqual = (a: Uint8Array, b: Uint8Array): boolean =>
 export async function hashPassword(password: string): Promise<{ salt: string; hash: string }> {
 	const salt = hexToBytes(randomBytes(16));
 	const hash = await derive(password, salt);
-	return { salt: bytesToHex(salt.buffer), hash: bytesToHex(hash.buffer) };
+	return {
+		salt: bytesToHex(salt.buffer as ArrayBuffer),
+		hash: bytesToHex(hash.buffer as ArrayBuffer),
+	};
 }
 
 /** Verify password terhadap salt+hash tersimpan. Timing-safe. */
