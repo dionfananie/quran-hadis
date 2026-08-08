@@ -31,11 +31,65 @@
 
 ---
 
+## 🛠️ Langkah Implementasi Berurutan (panduan eksekusi untuk agent/developer)
+
+Urutan kerja yang diikuti. Commit tiap tahap ke branch `features`.
+
+### Tahap A — Install Hono (dependensi)
+```bash
+# di root repo moozhaf (pakai npm/bun sesuai pengelola repo)
+npm install hono          # atau: bun add hono
+```
+- Pastikan `hono` masuk `dependencies` (package.json), bukan devDependency.
+
+### Tahap B — Refactor `workers/api/odoj.ts` ke Hono
+- Tulis ulang file jadi: `export const odojApp = new Hono<{ Bindings: Env }>()`.
+- Pindahkan SEMUA endpoint yang ada (yang sekarang masih manual `if pathname`) ke route builder Hono:
+  - `auth`: `POST /auth/register`, `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`
+  - `group`: `POST /odoj/groups`, `GET /odoj/groups/me`
+  - public: `GET /odoj/view`, `POST /odoj/read/complete`
+  - peserta: `GET|POST /odoj/participants`, `DELETE /odoj/participants/:id`
+  - assign: `GET|PUT /odoj/assignments`, `PUT /odoj/assignments/:id/done|undone`
+  - copy: `POST /odoj/assignments/copy-template`
+  - history: `GET /odoj/history`
+- D1 diakses `c.env.moozhaf_db` (buat helper `db(c)`).
+- Util `crypto.ts` & `session.ts` tetap diimpor dari `workers/lib/`.
+- Hapus blok manual pathname; ganti semua dengan route Hono.
+
+### Tahap C — Sambungkan di `workers/app.ts` (entry utama React Router tetap)
+- `app.ts` **tetap** pakai `createRequestHandler` (React Router entry utama — jangan diubah jadi Hono entry).
+- Ubah `fetch` handler: jika `request.url` path dimulai `/api/` → balik `odojApp.fetch(request, env)`; selain itu → `requestHandler(request, ...)`.
+```ts
+// contoh kerangka
+const isApi = new URL(request.url).pathname.startsWith("/api");
+if (isApi) return odojApp.fetch(request, env);
+return requestHandler(request, { cloudflare: { env, ctx } });
+```
+- Verifikasi `env` yang diteruskan punya `moozhaf_db`.
+
+### Tahap D — Daftar route UI React Router (halaman ODOJ)
+- Tambah di `app/routes.ts`: `odoj/admin`, `odoj/history`, `odoj/history/:date`, `odoj/view` (publik).
+- Halaman admin (`app/routes/odoj.tsx`) & riwayat: client `fetch` ke `/api/...` (lihat Task 3).
+- Halaman view publik (`odoj/view`): client `fetch` ke `GET /api/odoj/view` (lihat Task 4).
+- Tombol "Selesai dibaca" di `quran/surah.tsx` / `ayah.tsx`: tampil bila ada `odoj_token` di URL → `fetch` `POST /api/odoj/read/complete`.
+
+### Tahap E — Typecheck & build (wajib lolos sebelum commit)
+```bash
+npm run cf-typegen && tsc -b          # types + typecheck
+react-router build                    # build
+wrangler deploy --dry-run             # pastikan binding moozhaf_db terbaca
+```
+
+### Tahap F — Deploy & verifikasi manual
+- Ikuti Task 6 (login → buat group → assign → share view → buka dari device lain → tandai selesai → cek riwayat + isolasi group).
+
+---
+
 ## ⚠️ Ketergantungan / prasyarat
 
-- Auth admin: **wait** selesaikan auth di `PLAN.md` dulu, atau buat versi **admin-only** ringan di sini bila `PLAN.md` belum kelar. Prioritas pakai ulang util yang sudah ada.
-- Pastikan **D1 Blocker** di `PLAN.md` teratasi sebelum menyentuh `migrations/` D1.
-- Perlu tau halaman baca juz yang sudah ada di Moozhaf (mis. `/quran/:juz/:ayah`) untuk dijadikan target redirect link peserta. *(cek di `app/routes.ts`.)*
+- Auth admin: **sudah dirancang** di odoj ini (register terbuka → user bikin group). Util `crypto.ts`/`session.ts` sudah dibuat. Tidak perlu menunggu `PLAN.md` untuk eksekusi ODOJ.
+- ~~D1 Blocker~~ ✅ **SUDAH TERATASI** (commit `dc94661` di `master`): DB `moozhaf-db` dibuat, binding `moozhaf_db` terpasang, migration `0001_init.sql` & `0001_odoj.sql` ter-apply remote. Token Cloudflare tersimpan di `.env` (jangan di-commit).
+- Perlu tau halaman baca juz yang sudah ada di Moozhaf: `app/routes/quran/surah.tsx` (`/quran/:number`) & `app/routes/quran/ayah.tsx` (`/quran/:number/:ayah`). Ini target redirect link peserta & tempat tombol "Selesai dibaca".
 
 ---
 
@@ -59,7 +113,7 @@
 
 ## Task 1: Migration skema
 
-Create: `migrations/0002_odoj.sql`
+Create: `migrations/0001_odoj.sql` *(sudah dibuat & ter-apply remote di branch `features` — commit `99b0a7c`)*
 ```sql
 -- Group ODOJ: unit utama. Tiap group punya admin + peserta + penugasan sendiri.
 CREATE TABLE IF NOT EXISTS odoj_groups (
@@ -162,7 +216,7 @@ Create `app/routes/odoj.tsx`; update `app/routes.ts`.
 
 ## Task 6: Deploy & verifikasi
 
-1. `npx --yes wrangler@4.88.0 d1 execute moozhaf-db --remote --file=migrations/0002_odoj.sql`
+1. Migration skema sudah ter-apply (lihat Task 1). Jika ada perubahan skema baru → `npx --yes wrangler@4.88.0 d1 execute moozhaf-db --remote --file=migrations/<file>.sql`
 2. `npx --yes wrangler@4.88.0 deploy`
 3. Test browser: login admin → **buat group** → tambah nama → assign 30 juz → **copy dari kemarin / copy format ini dr riwayat** → **share link view** → buka di browser lain (inkognito) → lihat tabel juz+nama → klik baris → **redirect ke halaman juz** → tap "Selesai dibaca" → cek admin: status done, `done_by='participant'`, hitungan "selesai" di list tanggal naik. Test juga tandai done dari sisi admin, dan pastikan **admin group lain tidak bisa melihat/ubah group ini** (uji isolasi).
 
@@ -170,8 +224,9 @@ Create `app/routes/odoj.tsx`; update `app/routes.ts`.
 
 ## Daftar file berubah
 
-**Create:** `migrations/0002_odoj.sql`, `workers/api/odoj.ts`, `app/routes/odoj.tsx`, `app/routes/odoj-history.tsx`. **Modify route baca juz** (tambah tombol "Selesai dibaca" conditional).
-**Modify:** `workers/app.ts`, `app/routes.ts`, `app/routes/more.tsx`, `app/routes/quran.tsx` (atau file route baca juz yg ada — tambah tombol done bila `odoj_token` ada), `app/lib/i18n.tsx`, `worker-configuration.d.ts` (via `wrangler types`).
+**Create:** `migrations/0001_odoj.sql` *(sudah, commit `99b0a7c`)*, `workers/api/odoj.ts` *(WIP, refactor ke Hono)*, `workers/lib/crypto.ts` & `workers/lib/session.ts` *(sudah, commit `99b0a7c`)*, `app/routes/odoj.tsx`, `app/routes/odoj-history.tsx`, `app/routes/odoj-view.tsx`. **Modify route baca juz** (tambah tombol "Selesai dibaca" conditional).
+**Modify:** `workers/app.ts` (sambung Hono utk `/api/*`), `app/routes.ts`, `app/routes/more.tsx`, `app/routes/quran/surah.tsx` & `quran/ayah.tsx` (tambah tombol done bila `odoj_token` ada), `app/lib/i18n.tsx`, `worker-configuration.d.ts` (via `wrangler types`).
+**Dependensi baru:** `hono` (install di Tahap A).
 **Jangan diubah:** `react-router.config.ts`, `vite.config.ts`, file `.server` internal.
 
 ## Risiko / catatan
