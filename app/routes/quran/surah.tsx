@@ -1,5 +1,5 @@
-import { Link } from "react-router";
-import { ChevronRight, Play, Pause, ArrowLeft } from "lucide-react";
+import { Link, useSearchParams } from "react-router";
+import { ChevronRight, Play, Pause, ArrowLeft, Check } from "lucide-react";
 import { useRef, useState, useEffect, type KeyboardEvent } from "react";
 import type { Route } from "./+types/surah";
 import {
@@ -69,6 +69,29 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 	const [showLegend, setShowLegend] = useState(false);
 	const arabicOnlyRef = useRef<HTMLButtonElement>(null);
 	const arabicTranslationRef = useRef<HTMLButtonElement>(null);
+
+	// ODOJ: bila ada odoj_token di URL, tampilkan tombol "Selesai dibaca"
+	const [searchParams] = useSearchParams();
+	const odojToken = searchParams.get("odoj_token");
+	const [odojDone, setOdojDone] = useState<boolean | null>(null);
+	const [odojBusy, setOdojBusy] = useState(false);
+	const submitOdoj = async () => {
+		if (!odojToken) return;
+		setOdojBusy(true);
+		try {
+			const res = await fetch("/api/odoj/read/complete", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ token: odojToken }),
+			});
+			if (res.ok) setOdojDone(true);
+			else setOdojDone(false);
+		} catch {
+			setOdojDone(false);
+		} finally {
+			setOdojBusy(false);
+		}
+	};
 
 	// Load surah data client-side
 	useEffect(() => {
@@ -211,6 +234,24 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 							{current === "surah" ? <Pause className="size-4" /> : <Play className="size-4" />}
 							{current === "surah" ? t("common_pause") : t("home.listenRecitation")}
 						</button>
+						{odojToken && (
+							odojDone ? (
+								<span className="inline-flex items-center gap-2 rounded-lg bg-green-100 px-5 py-2.5 text-sm font-semibold text-green-700 dark:bg-green-900/50 dark:text-green-400">
+									<Check className="size-4" />
+									Alhamdulillah, tercatat
+								</span>
+							) : (
+								<button
+									type="button"
+									onClick={submitOdoj}
+									disabled={odojBusy || odojDone === false}
+									className="inline-flex items-center gap-2 rounded-lg bg-gold px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-gold/90 focus-visible:outline-2 focus-visible:outline-gold disabled:opacity-50"
+								>
+									<Check className="size-4" />
+									{odojBusy ? "Menyimpan…" : "Selesai dibaca"}
+								</button>
+							)
+						)}
 					</div>
 				</div>
 			</div>
