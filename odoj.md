@@ -107,7 +107,7 @@ wrangler deploy --dry-run             # pastikan binding moozhaf_db terbaca
 - 📅 **Riwayat + status per tanggal tercatat**. **List tanggal** per group menampilkan per baris: **juz terisi + jumlah juz selesai dibaca** (mis. "23/30 terisi, 18/30 selesai").
 - ⏩ **Copy template antar-tanggal** + pintasan "Copy dari format kemarin" (masih per group).
 - 🔔 **Kirim WA otomatis per peserta** (`?phone=`) = **luar scope awal** opsional; inti share = link view publik utk group. 
-- 🔐 **Auth**: 1 akun admin per group. Tabel `users` (dari `PLAN.md`) → kolom `odoj_group_id` menandai admin group tsb (atau tabel relasi admin–group).
+- 🔐 **Auth**: 1 akun admin per group. Tabel `users` (dari `migrations/0001_init.sql`) → kolom `odoj_groups.admin_user_id` menandai admin group tsb (atau tabel relasi admin–group).
 
 ---
 
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS odoj_assignment (
 CREATE INDEX IF NOT EXISTS idx_odoj_assign_group_date ON odoj_assignment(group_id, date);
 CREATE INDEX IF NOT EXISTS idx_odoj_assign_token ON odoj_assignment(token);
 ```
-Terapkan: `npx --yes wrangler@4.88.0 d1 execute moozhaf-db --file=migrations/0002_odoj.sql`
+Terapkan: `npx --yes wrangler@4.88.0 d1 execute moozhaf-db --remote --file=migrations/0001_odoj.sql` *(sudah ter-apply — lihat Task 1 header)*
 
 ## Task 2: API ODOJ
 
@@ -231,7 +231,7 @@ Create `app/routes/odoj.tsx`; update `app/routes.ts`.
 
 ## Risiko / catatan
 
-- **Auth & tabel `users`** tergantung `PLAN.md`; kalau belum kelar, butuh versi admin-only ringan dulu (kalau begitu, `odoj_groups.admin_user_id` menunjuk user admin tunggal / superadmin).
+- ~~Auth & tabel `users` tergantung `PLAN.md`~~ → **sudah selesai di `odoj` ini.** Lihat prasyarat di atas.
 - **Isolasi antar group** adalah prioritas keamanan — setiap query admin wajib scoped `group_id` dari sesi; jangan sampai token view/group bocor antar group.
 - **Dua jenis token berbeda**: `group_token` (link view publik per group) vs `odoj_token`/`token` (link baca per assignment). Jangan tertukar.
 - **Link peserta valid selamanya** kecuali dibatalkan/hapus; opsional kadaluarsa per tanggal (luar scope).
