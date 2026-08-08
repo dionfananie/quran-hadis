@@ -10,5 +10,13 @@
 	"upload_source_maps": true,
 	"vars": {
 		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare"
-	}
+	},
+	"d1_databases": [
+		{
+			"binding": "moozhaf_db",
+			"database_name": "moozhaf-db",
+			"database_id": "3dd3284f-2e31-4f59-9d02-fe1575723139",
+			"migrations_dir": "migrations"
+		}
+	]
 }
