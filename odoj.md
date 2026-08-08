@@ -10,9 +10,24 @@
 
 **Model akses:** **Model A + token link.** Admin login; peserta tanpa akun, diidentifikasi via token di URL. Keputusan ini karena ODOJ = tantangan ibadah harian (friction peserta harus minimal) dan data yang dilindungi (siapa pegang juz apa) tidak sensitif. Link per tanggal + juz + token; risiko "link bocor" dapat diterima (dampak maksimal = centang palsu pada log ibadah, tanpa kerugian materi).
 
-**Architecture:** React Router 7 full-stack di Cloudflare Worker (sudah ada). Data di **Cloudflare D1** (SQLite). Auth **hanya admin** (email/password + session cookie, pakai pola `PLAN.md` — `workers/lib/crypto.ts` & `workers/lib/session.ts`). Endpoint token peserta **public** (tanpa session), hanya validasi token.
+**Architecture:** React Router 7 full-stack di Cloudflare Worker (sudah ada). Data di **Cloudflare D1** (SQLite). Auth **hanya admin** (email/password + session cookie, pakai util `workers/lib/crypto.ts` & `workers/lib/session.ts`). Endpoint token peserta **public** (tanpa session), hanya validasi token.
+
+> ⚠️ Catatan: keputusan routing API (Hono-style di worker vs React Router) ada di keputusan arsitektur di bawah — baca dulu sebelum coding.
 
 **Tech Stack:** Cloudflare Workers (V8), D1, React Router 7, Radix UI + Tailwind v4 (sudah ada), i18n id/en (`@/lib/i18n`).
+
+**Menambahkan keputusan arsitektur routing API:**
+
+> ⚠️ **ARSITEKTUR API — WAJIB IKUTI** (kesepakatan Edo, Opsi B):
+> API ODOJ & Auth disusun dengan **library Hono** untuk rute `/api/*`, sementara **React Router tetap entry utama Worker**.
+> - **Install `hono`** sebagai dependency.
+> - `workers/api/odoj.ts` = `new Hono()` dengan route builder (`.get(...)`, `.post(...)`, dst) utk semua path `/api/...`. **Bukan** manual `if pathname`, **bukan** React Router loader/action.
+> - **`workers/app.ts` tetap entry utama** (React Router via `createRequestHandler`). Tambahkan: tangkap request `/api/*` → panggil `odojApp.fetch(request, env)` (Hono), selain itu → `requestHandler` React Router. Jangan jadikan Hono entry utama.
+> - **Utilitas auth (bukan rute HTTP)**: `workers/lib/crypto.ts` & `workers/lib/session.ts` (diimpor dari router Hono).
+> - **D1** diakses via `env.moozhaf_db` (binding `moozhaf_db` di `wrangler.json`). Di Hono, baca via `c.env.moozhaf_db`.
+> - **UI ODOJ** (halaman admin & halaman view peserta) tetap React Router (`app/routes/...`), dan memanggil API `/api/...` via `fetch` di client.
+> - Halaman baca Al-Qur'an existing (`app/routes/quran/surah.tsx` / `ayah.tsx`) tinggal ditambah tombol **"Selesai dibaca"** yang tampil **bila ada query param `odoj_token`**, memanggil `POST /api/odoj/read/complete`.
+> - `workers/app.ts` adalah satu-satunya titik masuk Worker (`main` di wrangler.json) — jangan membuat entry worker kedua.
 
 ---
 
