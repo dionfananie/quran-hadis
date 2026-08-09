@@ -115,13 +115,10 @@
 	--surface: #edeee8;
 	--surface-high: #e8e9e3;
 	--surface-bright: #f9faf4;
-
 	/* Design accents */
 	--gold: #c5a059;
 	--teal: #004d40;
 	--green: #004d40;
-	
-
 	/* Figma Sacred Emerald tokens */
 	--primary-container: #004d40;
 	--gold-border: rgba(184, 134, 11, 0.3);
