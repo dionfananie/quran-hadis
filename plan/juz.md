@@ -32,6 +32,26 @@
 
 ---
 
+## 🔍 Tajwid di Halaman Juz (PLAN)
+> Menambahkan **tampilan & highlight tajwid** di halaman juz, meniru halaman surah. Ini **mungkin dilakukan** — data tajwid sudah tersedia.
+
+**Data (sudah diverifikasi):** `public/data/tajwid/<surah>.json` = **array** panjang = jumlah ayat surat. Index = `inSurah - 1` (sejajar `surah.ayahs`). Format elemen = string tajwid bertag (mis. `'ا[m[لٓ][m[مٓ]'`). Dikonsumsi via helper `getSurahTajwid(number)` → `string[]` (di `app/lib/data/quran.ts`).
+
+**Kendala khusus juz:** 1 juz berisi **beberapa surat**. Tajwid disimpan per-surat → di halaman juz harus gabungkan bundle dari semua surat dlm rentang, lalu cocokkan per ayat via `(surah, inSurah)`.
+
+**Yang PERLU diperbaiki di helper/data:**
+- Sekarang `getSurahTajwid(number)` fetch satu surat. Untuk juz, perlu **mengumpulkan tajwid beberapa surat** (`meta.start.surah` … `meta.end.surah`) — mis. loop `getSurahTajwid(s)` & simpan per-surat.
+
+**Langkah eksekusi:**
+1. `app/routes/quran/juz.tsx`: tambah state & lazy-load tajwid utk **semua surat dlm rentang juz** saat toggle tajwid ON.
+2. Simpan sebagai `Record<surah, string[]>` (bukan array flat) supaya bisa lookup per `(surah, inSurah)`.
+3. Tambah toggle **"Tajwid"** (`showTajwid`) + **"Legend Tajwid"** (`showLegend`) di toolbar — persis surah.
+4. Render: pada card ayat, kalau `showTajwid`, tampilkan `parseTajweed(tajwidBySurah[a.surah][a.inSurah-1])` (fallback ke arab polos bila tak ada).
+5. `parseTajweed` & `TAJWEED_RULES` sudah ada di `app/lib/tajweed.ts` — tinggal di-import.
+6. Button toolbar: salin komponen dari `surah.tsx` (toggle tajwid + legend, LEGEND_GROUPS, TAJWEED_RULES).
+
+**Catatan:** Semua util (getSurahTajwid, parseTajweed, TAJWEED_RULES, LEGEND_GROUPS) sdh dipakai surah.tsx. Di juz tinggal rakit bundle multi-surat & lookup per ayat.
+
 ## 🔄 Improvement (Plan / belum dikerjakan)
 
 ### A. Route → `/quran/juz/:number`
