@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/lib/i18n";
 import type { Route } from "./+types/odoj-create";
 
 export function meta({}: Route.MetaArgs) {
@@ -153,6 +154,7 @@ function GroupSetup({ onCreated }: { onCreated: () => void }) {
 
 // ── Main dashboard (assign + kelola nama + share) ───────────
 function Dashboard({ group, onGroupRefresh }: { group: NonNullable<Group>; onGroupRefresh: () => void }) {
+	const { t } = useI18n();
 	const [date, setDate] = useState(todayStr());
 	const [participants, setParticipants] = useState<Participant[]>([]);
 	const [assign, setAssign] = useState<Assignment[]>([]);
@@ -249,9 +251,8 @@ function Dashboard({ group, onGroupRefresh }: { group: NonNullable<Group>; onGro
 					{linkView && (
 						<div className="space-y-2 rounded-lg border bg-muted/30 p-3">
 							<p className="text-sm text-muted-foreground">
-								<strong className="text-foreground">Bagikan link ini ke group peserta.</strong>{" "}
-								Mereka bisa melihat juz masing-masing lalu menandai "Selesai dibaca"
-								tanpa perlu login.
+								<strong className="text-foreground">{t("odoj.linkShare")}</strong>{" "}
+								{t("odoj.linkShareDesc")}
 							</p>
 							<div className="flex gap-2">
 								<Input readOnly value={linkView} className="flex-1 font-mono text-xs" />
@@ -262,7 +263,7 @@ function Dashboard({ group, onGroupRefresh }: { group: NonNullable<Group>; onGro
 										setCopied(true);
 									}}
 								>
-									Share Group Link
+									{t("odoj.shareGroupLink")}
 								</Button>
 							</div>
 						</div>
@@ -344,9 +345,9 @@ function Dashboard({ group, onGroupRefresh }: { group: NonNullable<Group>; onGro
 				onOpenChange={setCopied}
 				className="rounded-lg border bg-background px-4 py-3 shadow-lg"
 			>
-				<Toast.Title className="text-sm font-medium">✓ Link berhasil disalin</Toast.Title>
+				<Toast.Title className="text-sm font-medium">✓ {t("odoj.copied")}</Toast.Title>
 				<Toast.Description className="text-sm text-muted-foreground">
-					Bagikan link ke group peserta ya.
+					{t("odoj.copiedDesc")}
 				</Toast.Description>
 			</Toast.Root>
 		</div>

@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useI18n } from "@/lib/i18n";
 import type { Route } from "./+types/odoj-view";
 
 export function meta({}: Route.MetaArgs) {
@@ -14,6 +15,7 @@ type ViewRow = { juz_number: number; participant_name: string; token: string; st
 type ViewData = { date: string; group_name: string; admin_name?: string | null; list: ViewRow[] };
 
 export default function OdojView() {
+	const { t } = useI18n();
 	const [params] = useSearchParams();
 	const [data, setData] = useState<ViewData | null>(null);
 	const [error, setError] = useState(false);
@@ -64,7 +66,7 @@ export default function OdojView() {
 					<CardTitle className="text-xl">{data.group_name}</CardTitle>
 					{data.admin_name && (
 						<p className="text-sm font-medium text-foreground/80">
-							Admin: {data.admin_name}
+							{t("odoj.viewAdmin")}: {data.admin_name}
 						</p>
 					)}
 					<p className="text-sm text-muted-foreground">

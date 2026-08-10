@@ -2,6 +2,7 @@ import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Users, CalendarDays, CheckCircle2, Target, MessageSquareShare } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 import type { Route } from "./+types/odoj";
 
 export function meta({}: Route.MetaArgs) {
@@ -10,6 +11,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function OdojLanding() {
 	const nav = useNavigate();
+	const { t } = useI18n();
 
 	function goCreate() {
 		nav("/odoj/create");
@@ -22,15 +24,11 @@ export default function OdojLanding() {
 				<div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-teal/10 text-teal">
 					<BookOpen className="size-8" />
 				</div>
-				<h1 className="font-serif text-3xl font-bold">One Day One Juz</h1>
-				<p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-					Bersama-sama mengkhatamkan Al-Qur'an setiap hari. Admin membagi 30 juz ke para
-					peserta, dan setiap peserta menandai selesai setelah membaca juznya. Istiqamah,
-					berjamaah, bermanfaat.
-				</p>
+				<h1 className="font-serif text-3xl font-bold">{t("odoj.title")}</h1>
+				<p className="mx-auto mt-3 max-w-xl text-muted-foreground">{t("odoj.hero")}</p>
 				<div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-					<Button onClick={goCreate} size="lg">Mulai ODOJ</Button>
-					<Button onClick={goCreate} size="lg" variant="outline">Buat Group ODOJ</Button>
+					<Button onClick={goCreate} size="lg">{t("odoj.ctaStart")}</Button>
+					<Button onClick={goCreate} size="lg" variant="outline">{t("odoj.ctaCreateGroup")}</Button>
 				</div>
 			</div>
 
@@ -38,72 +36,55 @@ export default function OdojLanding() {
 			<div className="grid gap-4 sm:grid-cols-2">
 				<Card>
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2 text-lg"><Users className="size-5 text-teal" /> Multi Grup</CardTitle>
+						<CardTitle className="flex items-center gap-2 text-lg"><Users className="size-5 text-teal" /> {t("odoj.featMultiGroup")}</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<CardDescription>
-							Buat & kelola beberapa group ODOJ. Masing-masing punya admin, peserta,
-							dan penugasan sendiri yang terisolasasi dengan rapi.
-						</CardDescription>
+						<CardDescription>{t("odoj.featMultiGroupDesc")}</CardDescription>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2 text-lg"><Target className="size-5 text-teal" /> 30 Juz Setiap Hari</CardTitle>
+						<CardTitle className="flex items-center gap-2 text-lg"><Target className="size-5 text-teal" /> {t("odoj.feat30")}</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<CardDescription>
-							Assign 30 juz Al-Qur'an penuh ke para peserta tiap tanggal. 1 peserta
-							boleh memegang lebih dari satu juz.
-						</CardDescription>
+						<CardDescription>{t("odoj.feat30Desc")}</CardDescription>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2 text-lg"><CalendarDays className="size-5 text-teal" /> Penjadwalan Harian</CardTitle>
+						<CardTitle className="flex items-center gap-2 text-lg"><CalendarDays className="size-5 text-teal" /> {t("odoj.featSchedule")}</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<CardDescription>
-							Pantau penugasan per tanggal, copy format dari hari sebelumnya, dan lihat
-							riwayat perkembangan dari waktu ke waktu.
-						</CardDescription>
+						<CardDescription>{t("odoj.featScheduleDesc")}</CardDescription>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2 text-lg"><MessageSquareShare className="size-5 text-teal" /> Bagikan ke Peserta</CardTitle>
+						<CardTitle className="flex items-center gap-2 text-lg"><MessageSquareShare className="size-5 text-teal" /> {t("odoj.featShare")}</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<CardDescription>
-							Bagikan link view ke group WA. Peserta cukup klik juznya, baca, lalu tandai
-							"Selesai dibaca" — tanpa perlu login.
-						</CardDescription>
+						<CardDescription>{t("odoj.featShareDesc")}</CardDescription>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2 text-lg"><CheckCircle2 className="size-5 text-teal" /> Pantau Selesai</CardTitle>
+						<CardTitle className="flex items-center gap-2 text-lg"><CheckCircle2 className="size-5 text-teal" /> {t("odoj.featTrack")}</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<CardDescription>
-							Lihat status selesai per juz secara real-time, lengkap dengan rekap berapa
-							juz yang sudah dibaca tiap tanggalnya.
-						</CardDescription>
+						<CardDescription>{t("odoj.featTrackDesc")}</CardDescription>
 					</CardContent>
 				</Card>
 			</div>
 
 			{/* CTA bawah */}
 			<div className="rounded-2xl border bg-accent/40 p-8 text-center">
-				<h2 className="text-xl font-semibold">Siap memulai?</h2>
-				<p className="mt-1 text-muted-foreground">
-					Buat group pertama untuk mulai menugaskan juz hari ini.
-				</p>
-				<Button onClick={goCreate} size="lg" className="mt-4">Buat Group ODOJ</Button>
+				<h2 className="text-xl font-semibold">{t("odoj.ready")}</h2>
+				<p className="mt-1 text-muted-foreground">{t("odoj.readyDesc")}</p>
+				<Button onClick={goCreate} size="lg" className="mt-4">{t("odoj.ctaCreateGroup")}</Button>
 			</div>
 		</div>
 	);

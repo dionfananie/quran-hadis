@@ -188,6 +188,30 @@ const id = {
 	"tajwid.idghamMutajanisayn": "Idgham Mutajanisain (إدغام متجانسين)",
 	"tajwid.idghamMutaqaribayn": "Idgham Mutaqaribain (إدغام متقاربين)",
 	"tajwid.ghunnah": "Ghunnah (غنة)",
+
+	// ODOJ landing
+	"odoj.title": "One Day One Juz",
+	"odoj.hero": "Bersama-sama mengkhatamkan Al-Qur'an setiap hari. Admin membagi 30 juz ke para peserta, dan setiap peserta menandai selesai setelah membaca juznya. Istiqamah, berjamaah, bermanfaat.",
+	"odoj.ctaStart": "Mulai ODOJ",
+	"odoj.ctaCreateGroup": "Buat Group ODOJ",
+	"odoj.featMultiGroup": "Multi Group",
+	"odoj.featMultiGroupDesc": "Buat & kelola beberapa group ODOJ. Masing-masing punya admin, peserta, dan penugasan sendiri yang terisolasasi dengan rapi.",
+	"odoj.feat30": "30 Juz Setiap Hari",
+	"odoj.feat30Desc": "Assign 30 juz Al-Qur'an penuh ke para peserta tiap tanggal. 1 peserta boleh memegang lebih dari satu juz.",
+	"odoj.featSchedule": "Penjadwalan Harian",
+	"odoj.featScheduleDesc": "Pantau penugasan per tanggal, copy format dari hari sebelumnya, dan lihat riwayat perkembangan dari waktu ke waktu.",
+	"odoj.featShare": "Bagikan ke Peserta",
+	"odoj.featShareDesc": "Bagikan link view ke group WA. Peserta cukup klik juznya, baca, lalu tandai \"Selesai dibaca\" — tanpa perlu login.",
+	"odoj.featTrack": "Pantau Selesai",
+	"odoj.featTrackDesc": "Lihat status selesai per juz secara real-time, lengkap dengan rekap berapa juz yang sudah dibaca tiap tanggalnya.",
+	"odoj.ready": "Siap memulai?",
+	"odoj.readyDesc": "Buat group pertama untuk mulai menugaskan juz hari ini.",
+	"odoj.linkShare": "Bagikan link ini ke group peserta.",
+	"odoj.linkShareDesc": "Mereka bisa melihat juz masing-masing lalu menandai \"Selesai dibaca\" tanpa perlu login.",
+	"odoj.shareGroupLink": "Share Group Link",
+	"odoj.copied": "Link berhasil disalin",
+	"odoj.copiedDesc": "Bagikan link ke group peserta ya.",
+	"odoj.viewAdmin": "Admin",
 } as const;
 
 const en: Record<keyof typeof id, string> = {
@@ -368,6 +392,30 @@ const en: Record<keyof typeof id, string> = {
 	"tajwid.idghamMutajanisayn": "Idgham Mutajanisayn (إدغام متجانسين)",
 	"tajwid.idghamMutaqaribayn": "Idgham Mutaqaribayn (إدغام متقاربين)",
 	"tajwid.ghunnah": "Ghunnah (غنة)",
+
+	// ODOJ landing
+	"odoj.title": "One Day One Juz",
+	"odoj.hero": "Together, we complete the Qur'an every day. An admin assigns 30 juz to participants, and each participant marks done after reading their juz. Consistent, communal, rewarding.",
+	"odoj.ctaStart": "Start ODOJ",
+	"odoj.ctaCreateGroup": "Create ODOJ Group",
+	"odoj.featMultiGroup": "Multiple Groups",
+	"odoj.featMultiGroupDesc": "Create & manage multiple ODOJ groups. Each has its own admin, participants, and neatly isolated assignments.",
+	"odoj.feat30": "30 Juz Every Day",
+	"odoj.feat30Desc": "Assign all 30 juz to participants for each date. One participant can hold more than one juz.",
+	"odoj.featSchedule": "Daily Scheduling",
+	"odoj.featScheduleDesc": "Track assignments per date, copy format from the previous day, and view history over time.",
+	"odoj.featShare": "Share with Participants",
+	"odoj.featShareDesc": "Share the view link to the WA group. Participants just tap their juz, read, and mark \"Done reading\" — no login needed.",
+	"odoj.featTrack": "Track Completion",
+	"odoj.featTrackDesc": "See completion per juz in real time, with a recap of how many juz were read each date.",
+	"odoj.ready": "Ready to start?",
+	"odoj.readyDesc": "Create your first group to start assigning juz today.",
+	"odoj.linkShare": "Share this link to the participant group.",
+	"odoj.linkShareDesc": "They can see their assigned juz and mark \"Done reading\" without logging in.",
+	"odoj.shareGroupLink": "Share Group Link",
+	"odoj.copied": "Link copied successfully",
+	"odoj.copiedDesc": "Share the link to the participant group.",
+	"odoj.viewAdmin": "Admin",
 };
 
 export type TKey = keyof typeof id;
