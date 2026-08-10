@@ -326,9 +326,14 @@ odojApp.get("/odoj/view", async (c) => {
 	const date = c.req.query("date");
 	if (!groupToken || !validDate(date || "")) return json({ error: "link tidak valid" }, 404);
 	const g = await d
-		.prepare(`SELECT id, name FROM odoj_groups WHERE token = ?`)
+		.prepare(
+			`SELECT og.id, og.name, u.name AS admin_name
+			 FROM odoj_groups og
+			 LEFT JOIN users u ON u.id = og.admin_user_id
+			 WHERE og.token = ?`,
+		)
 		.bind(groupToken)
-		.first<{ id: string; name: string }>();
+		.first<{ id: string; name: string; admin_name?: string | null }>();
 	if (!g) return json({ error: "link tidak valid" }, 404);
 	const rows = await d
 		.prepare(
@@ -340,7 +345,7 @@ odojApp.get("/odoj/view", async (c) => {
 		)
 		.bind(g.id, date)
 		.all<{ juz_number: number; participant_name: string; token: string; status: string }>();
-	return json({ date, group_name: g.name, list: rows.results });
+	return json({ date, group_name: g.name, admin_name: g.admin_name || null, list: rows.results });
 });
 
 // ── SELESAI DIBACA (peserta, tanpa auth, validasi token assignment) ────

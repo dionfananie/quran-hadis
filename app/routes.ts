@@ -18,6 +18,7 @@ export default [
 	route("register", "routes/register.tsx"),
 	route("user-profile", "routes/user-profile.tsx"),
 	route("odoj", "routes/odoj.tsx"),
+	route("odoj/create", "routes/odoj-create.tsx"),
 	route("odoj/history", "routes/odoj-history.tsx"),
 	route("odoj/history/:date", "routes/odoj-history-date.tsx"),
 	route("odoj/view", "routes/odoj-view.tsx"),

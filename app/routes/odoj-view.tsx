@@ -11,9 +11,11 @@ export function meta({}: Route.MetaArgs) {
 
 type ViewRow = { juz_number: number; participant_name: string; token: string; status: string };
 
+type ViewData = { date: string; group_name: string; admin_name?: string | null; list: ViewRow[] };
+
 export default function OdojView() {
 	const [params] = useSearchParams();
-	const [data, setData] = useState<{ date: string; group_name: string; list: ViewRow[] } | null>(null);
+	const [data, setData] = useState<ViewData | null>(null);
 	const [error, setError] = useState(false);
 	const [loading, setLoading] = useState(true);
 
@@ -29,7 +31,7 @@ export default function OdojView() {
 		fetch(`/api/odoj/view?group=${encodeURIComponent(groupToken)}&date=${encodeURIComponent(date)}`)
 			.then((res) => (res.ok ? res.json() : Promise.reject()))
 			.then((d) => {
-				setData(d as { date: string; group_name: string; list: ViewRow[] } | null);
+				setData(d as ViewData | null);
 				setLoading(false);
 			})
 			.catch(() => {
@@ -60,6 +62,11 @@ export default function OdojView() {
 			<Card>
 				<CardHeader>
 					<CardTitle className="text-xl">{data.group_name}</CardTitle>
+					{data.admin_name && (
+						<p className="text-sm font-medium text-foreground/80">
+							Admin: {data.admin_name}
+						</p>
+					)}
 					<p className="text-sm text-muted-foreground">
 						{data.date}
 					</p>
