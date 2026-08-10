@@ -16,6 +16,7 @@ export default [
 	route("settings", "routes/settings.tsx"),
 	route("login", "routes/login.tsx"),
 	route("register", "routes/register.tsx"),
+	route("user-profile", "routes/user-profile.tsx"),
 	route("odoj", "routes/odoj.tsx"),
 	route("odoj/history", "routes/odoj-history.tsx"),
 	route("odoj/history/:date", "routes/odoj-history-date.tsx"),

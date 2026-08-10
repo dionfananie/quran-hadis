@@ -1,8 +1,10 @@
-import { Languages, Moon, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Languages, Moon, Sun, User } from "lucide-react";
 import { NavLink } from "react-router";
 import logo from "@/assets/logo.png";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const items: { to: string; labelKey: TKey; end?: boolean }[] = [
 	{ to: "/", labelKey: "nav.home", end: true },
@@ -41,6 +43,7 @@ export function TopNav() {
 					</nav>
 
 					<div className="flex items-center gap-1">
+						<UserAvatarNav />
 						<button
 							type="button"
 							onClick={toggle}
@@ -62,5 +65,38 @@ export function TopNav() {
 				</div>
 			</div>
 		</header>
+	);
+}
+
+// Avatar menu user (kanan atas header) → link ke /user-profile.
+function UserAvatarNav() {
+	const [avatar, setAvatar] = useState<string | null>(undefined as unknown as string | null);
+
+	useEffect(() => {
+		let alive = true;
+		fetch("/api/auth/me")
+			.then((res) => (res.ok ? res.json() : Promise.reject()))
+			.then((d) => {
+				const u = (d as { user?: { avatar_url?: string | null } | undefined }).user;
+				if (!alive) return;
+				setAvatar(u?.avatar_url || "");
+			})
+			.catch(() => alive && setAvatar(""));
+		return () => {
+			alive = false;
+		};
+	}, []);
+
+	return (
+		<NavLink
+			to="/user-profile"
+			title="Profil"
+			aria-label="Profil"
+			className="rounded-full p-1 transition-colors hover:bg-accent"
+		>
+			<Avatar className="size-8">
+				{avatar ? <AvatarImage src={avatar} alt="Profil" /> : <AvatarFallback className="text-xs"><User className="size-4" /></AvatarFallback>}
+			</Avatar>
+		</NavLink>
 	);
 }

@@ -106,7 +106,42 @@ odojApp.get("/auth/me", async (c) => {
 	const d = db(c);
 	const userId = await requireUser(c);
 	if (!userId) return json({ error: "unauthorized" }, 401);
-	const user = await d.prepare(`SELECT id, email FROM users WHERE id = ?`).bind(userId).first();
+	const user = await d
+		.prepare(`SELECT id, email, name, avatar_url FROM users WHERE id = ?`)
+		.bind(userId)
+		.first();
+	return json({ user });
+});
+
+// Update profil user yang login (nama & avatar). Body: { name?, avatar_url? }
+odojApp.patch("/auth/me", async (c) => {
+	const d = db(c);
+	const userId = await requireUser(c);
+	if (!userId) return json({ error: "unauthorized" }, 401);
+	const raw = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+	const body = raw as { name?: string; avatar_url?: string };
+	const name = typeof body.name === "string" ? body.name.trim().slice(0, 100) : undefined;
+	const avatarUrl = typeof body.avatar_url === "string" ? body.avatar_url.slice(0, 20000) : undefined;
+	if (name === undefined && avatarUrl === undefined) {
+		return json({ error: "tidak ada field name/avatar_url yang dikirim" }, 400);
+	}
+	// Bangun update dinamis (hanya field yang dikirim).
+	const sets: string[] = [];
+	const vals: string[] = [];
+	if (name !== undefined) {
+		sets.push("name = ?");
+		vals.push(name);
+	}
+	if (avatarUrl !== undefined) {
+		sets.push("avatar_url = ?");
+		vals.push(avatarUrl);
+	}
+	vals.push(userId);
+	await d.prepare(`UPDATE users SET ${sets.join(", ")} WHERE id = ?`).bind(...vals).run();
+	const user = await d
+		.prepare(`SELECT id, email, name, avatar_url FROM users WHERE id = ?`)
+		.bind(userId)
+		.first();
 	return json({ user });
 });
 
