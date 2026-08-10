@@ -240,7 +240,12 @@ odojApp.get("/auth/google/callback", async (c) => {
 		}
 
 		const { token, expiresMs } = await createSession(d, uid);
-		const res = json({ ok: true, user: { id: uid, email } });
+		// Redirect ke halaman admin ODOJ + set session cookie di header jawaban.
+		const redirectUrl = new URL("/odoj", c.req.url).toString();
+		const res = new Response(null, {
+			status: 302,
+			headers: { location: redirectUrl },
+		});
 		setSessionCookie(res.headers, token, expiresMs);
 		return res;
 	} catch (err) {
