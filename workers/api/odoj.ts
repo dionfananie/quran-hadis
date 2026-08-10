@@ -165,75 +165,86 @@ odojApp.get("/auth/google", async (c) => {
 
 // 2) Callback setelah user menyetujui → tukar code → ambil info → buat/login user.
 odojApp.get("/auth/google/callback", async (c) => {
-	const d = db(c);
-	const cfg = googleCfg(c);
-	const url = c.req.url;
-	const sp = new URL(url).searchParams;
-	const code = sp.get("code");
-	const error = sp.get("error");
-	if (error) return json({ error: `Google auth dibatalkan: ${error}` }, 400);
-	if (!code) return json({ error: "Kode otorisasi tidak ada" }, 400);
+	try {
+		const d = db(c);
+		const cfg = googleCfg(c);
+		const url = c.req.url;
+		const sp = new URL(url).searchParams;
+		const code = sp.get("code");
+		const error = sp.get("error");
+		if (error) return json({ error: `Google auth dibatalkan: ${error}` }, 400);
+		if (!code) return json({ error: "Kode otorisasi tidak ada" }, 400);
+		if (!cfg.id || !cfg.secret) return json({ error: "Google login belum dikonfigurasi" }, 500);
 
-	// Tukar authorization code → token akses.
-	const tokenResp = await fetch(GOOGLE_TOKEN_URL, {
-		method: "POST",
-		headers: { "content-type": "application/x-www-form-urlencoded" },
-		body: new URLSearchParams({
-			code,
-			client_id: cfg.id,
-			client_secret: cfg.secret,
-			redirect_uri: cfg.redirect,
-			grant_type: "authorization_code",
-		}),
-	});
-	const tokenJson = (await tokenResp.json()) as GoogleTokenResp;
-	if (!tokenJson.access_token || tokenJson.error) {
-		return json({ error: "Gagal mendapat token Google" }, 400);
+		// Tukar authorization code → token akses.
+		const tokenResp = await fetch(GOOGLE_TOKEN_URL, {
+			method: "POST",
+			headers: { "content-type": "application/x-www-form-urlencoded" },
+			body: new URLSearchParams({
+				code,
+				client_id: cfg.id,
+				client_secret: cfg.secret,
+				redirect_uri: cfg.redirect,
+				grant_type: "authorization_code",
+			}),
+		});
+		const tokenRespText = await tokenResp.text();
+		let tokenJson: GoogleTokenResp;
+		try {
+			tokenJson = JSON.parse(tokenRespText) as GoogleTokenResp;
+		} catch {
+			return json({ error: `Gagal parse respon token Google (HTTP ${tokenResp.status})` }, 500);
+		}
+		if (!tokenJson.access_token || tokenJson.error) {
+			return json({ error: `Gagal mendapat token Google: ${tokenJson.error || tokenResp.status}` }, 400);
+		}
+
+		// Ambil info user (email, nama, avatar) pakai access token.
+		const userResp = await fetch(GOOGLE_USERINFO_URL, {
+			headers: { authorization: `Bearer ${tokenJson.access_token}` },
+		});
+		if (!userResp.ok) return json({ error: `Gagal mengambil profil Google (HTTP ${userResp.status})` }, 400);
+		const guser = (await userResp.json()) as GoogleUser;
+		if (!guser.email) return json({ error: "Google tidak mengembalikan email" }, 400);
+
+		const googleId = guser.id || `sub:${guser.email}`;
+		const email = guser.email.toLowerCase().trim();
+		const name = guser.name || email.split("@")[0];
+		const avatar = guser.picture || "";
+
+		// Cari user berdasarkan google_id ATAU email (biar link ke akun email existing).
+		let user = await d
+			.prepare(`SELECT id FROM users WHERE google_id = ?`)
+			.bind(googleId)
+			.first<{ id: string }>();
+		if (!user) {
+			user = await d.prepare(`SELECT id FROM users WHERE email = ?`).bind(email).first<{ id: string }>();
+		}
+
+		let uid: string;
+		if (user) {
+			// User sudah ada → update google_id (link) & profil.
+			uid = user.id;
+			await d
+				.prepare(`UPDATE users SET google_id = ?, name = ?, avatar_url = ? WHERE id = ?`)
+				.bind(googleId, name, avatar, uid)
+				.run();
+		} else {
+			// User baru → buat.
+			uid = `g_${randomToken()}`;
+			await d
+				.prepare(`INSERT INTO users (id, email, google_id, name, avatar_url) VALUES (?, ?, ?, ?, ?)`)
+				.bind(uid, email, googleId, name, avatar)
+				.run();
+		}
+
+		const { token, expiresMs } = await createSession(d, uid);
+		const res = json({ ok: true, user: { id: uid, email } });
+		setSessionCookie(res.headers, token, expiresMs);
+		return res;
+	} catch (err) {
+		return json({ error: `callback error: ${err instanceof Error ? err.message : String(err)}` }, 500);
 	}
-
-	// Ambil info user (email, nama, avatar) pakai access token.
-	const userResp = await fetch(GOOGLE_USERINFO_URL, {
-		headers: { authorization: `Bearer ${tokenJson.access_token}` },
-	});
-	if (!userResp.ok) return json({ error: "Gagal mengambil profil Google" }, 400);
-	const guser = (await userResp.json()) as GoogleUser;
-	if (!guser.email) return json({ error: "Google tidak mengembalikan email" }, 400);
-
-	const googleId = guser.id || `sub:${guser.email}`;
-	const email = guser.email.toLowerCase().trim();
-	const name = guser.name || email.split("@")[0];
-	const avatar = guser.picture || "";
-
-	// Cari user berdasarkan google_id ATAU email (biar link ke akun email existing).
-	let user = await d
-		.prepare(`SELECT id FROM users WHERE google_id = ?`)
-		.bind(googleId)
-		.first<{ id: string }>();
-	if (!user) {
-		user = await d.prepare(`SELECT id FROM users WHERE email = ?`).bind(email).first<{ id: string }>();
-	}
-
-	let uid: string;
-	if (user) {
-		// User sudah ada → update google_id (link) & profil.
-		uid = user.id;
-		await d
-			.prepare(`UPDATE users SET google_id = ?, name = ?, avatar_url = ? WHERE id = ?`)
-			.bind(googleId, name, avatar, uid)
-			.run();
-	} else {
-		// User baru → buat.
-		uid = `g_${randomToken()}`;
-		await d
-			.prepare(`INSERT INTO users (id, email, google_id, name, avatar_url) VALUES (?, ?, ?, ?, ?)`)
-			.bind(uid, email, googleId, name, avatar)
-			.run();
-	}
-
-	const { token, expiresMs } = await createSession(d, uid);
-	const res = json({ ok: true, user: { id: uid, email } });
-	setSessionCookie(res.headers, token, expiresMs);
-	return res;
 });
 
 // ── GROUP ───────────────────────────────────────────────────────────────
