@@ -195,26 +195,49 @@ export default function Juz() {
 			</div>
 
 			{/* Ayahs */}
-			<div className="space-y-6">
-				{ayahs.map((a) => (
-					<div key={a.key} id={`${a.surah}:${a.inSurah}`}>
-						<div className="flex items-center gap-2">
+			<div className="space-y-3">
+				{ayahs.map((a) => {
+					const isPlaying = current === a.key;
+					return (
+						<div
+							key={a.key}
+							id={`${a.surah}:${a.inSurah}`}
+							className={cn(
+								"flex items-start gap-3 rounded-xl border bg-card p-5 transition-colors",
+								isPlaying
+									? "border-gold bg-gold-surface/60"
+									: "border-gold-border/50 hover:border-gold-border hover:bg-accent",
+							)}
+						>
+							<div className="flex min-w-0 flex-1 items-start gap-4">
+								<span className="mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-gold-surface text-xs font-semibold text-teal dark:text-primary">
+									{a.inSurah}
+								</span>
+								<div className="min-w-0 flex-1 space-y-2">
+									<p className="font-arabic text-xl leading-[2] text-teal dark:text-primary" dir="rtl">{a.arab}</p>
+									{showTranslation && a.translation && (
+										<p className="text-sm leading-relaxed text-muted-foreground">{a.translation}</p>
+									)}
+									<span className="text-[11px] text-muted-foreground">{a.surahName} · ayat {a.inSurah}</span>
+								</div>
+							</div>
 							<button
 								type="button"
 								onClick={() => toggleAyah(a.key, a.audio)}
-								title="Putar ayat"
-								className="rounded-full p-1.5 text-teal hover:bg-teal/10 dark:text-primary"
+								aria-label="Putar ayat"
+								aria-pressed={isPlaying}
+								className={cn(
+									"flex size-10 shrink-0 items-center justify-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-gold",
+									isPlaying
+										? "bg-teal text-white dark:bg-primary dark:text-primary-foreground"
+										: "bg-gold-surface text-teal hover:bg-teal hover:text-white dark:hover:bg-primary dark:hover:text-primary-foreground",
+								)}
 							>
-								{current === a.key ? <Pause className="size-4" /> : <Play className="size-4" />}
+								{isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
 							</button>
-							<span className="text-xs text-muted-foreground">[{a.surahName} : {a.inSurah}]</span>
 						</div>
-						<p className="mt-1 text-right text-2xl leading-loose" dir="rtl">{a.arab}</p>
-						{showTranslation && a.translation && (
-							<p className="mt-1 text-sm text-foreground/80">{a.translation}</p>
-						)}
-					</div>
-				))}
+					);
+				})}
 			</div>
 		</div>
 	);
