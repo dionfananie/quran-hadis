@@ -14,5 +14,11 @@ export default [
 	route("prayer", "routes/prayer.tsx"),
 	route("more", "routes/more.tsx"),
 	route("settings", "routes/settings.tsx"),
+	route("login", "routes/login.tsx"),
+	route("register", "routes/register.tsx"),
+	route("odoj", "routes/odoj.tsx"),
+	route("odoj/history", "routes/odoj-history.tsx"),
+	route("odoj/history/:date", "routes/odoj-history-date.tsx"),
+	route("odoj/view", "routes/odoj-view.tsx"),
 	route("sitemap.xml", "routes/sitemap.tsx"),
 ] satisfies RouteConfig;
