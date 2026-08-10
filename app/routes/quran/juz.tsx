@@ -2,9 +2,10 @@ import { useMemo, useState, useRef, useEffect } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import { ArrowLeft, ChevronRight, Play, Pause } from "lucide-react";
 import type { Route } from "./+types/juz";
-import { getSurah, getSurahMeta, surahAudioUrl } from "@/lib/data/quran";
-import { useI18n } from "@/lib/i18n";
-import { useShowTranslation } from "@/lib/hooks";
+import { getSurah, getSurahMeta, getSurahTajwid, surahAudioUrl } from "@/lib/data/quran";
+import { useI18n, type TKey } from "@/lib/i18n";
+import { useShowTranslation, useShowTajwid } from "@/lib/hooks";
+import { TAJWEED_RULES, parseTajweed } from "@/lib/tajweed";
 import { cn } from "@/lib/utils";
 import juzData from "@/data/juz.json";
 
@@ -37,6 +38,13 @@ const pillBase =
 const activePill = `${pillBase} bg-teal text-white shadow-sm dark:bg-primary dark:text-primary-foreground`;
 const idlePill = `${pillBase} text-muted-foreground hover:text-foreground`;
 
+const LEGEND_GROUPS: { titleKey: TKey; match: (id: string) => boolean }[] = [
+	{ titleKey: "quran.legend.madd", match: (id) => id.startsWith("madda-") },
+	{ titleKey: "quran.legend.idgham", match: (id) => id.startsWith("idgham-") },
+	{ titleKey: "quran.legend.ikhfa", match: (id) => id === "ikhafa" || id === "ikhafa-shafawi" },
+	{ titleKey: "quran.legend.other", match: () => true },
+];
+
 export default function Juz() {
 	const { number } = useParams<{ number: string }>();
 	const { t } = useI18n();
@@ -51,6 +59,9 @@ export default function Juz() {
 
 	// Display toggle (audio per-ayat + arab/terjemahan)
 	const [showTranslation, setShowTranslation] = useShowTranslation();
+	const [showTajwid, setShowTajwid] = useShowTajwid();
+	const [tajwidMap, setTajwidMap] = useState<Record<number, string[]>>({});
+	const [showLegend, setShowLegend] = useState(false);
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const [current, setCurrent] = useState<string | null>(null);
 
@@ -109,6 +120,22 @@ export default function Juz() {
 
 	useEffect(() => () => { audioRef.current?.pause(); }, []);
 
+	// Lazy-load tajwid utk semua surat dlm juz saat toggle ON
+	useEffect(() => {
+		if (!showTajwid || !meta) return;
+		let cancelled = false;
+		(async () => {
+			const map: Record<number, string[]> = {};
+			for (let s = meta.start.surah; s <= meta.end.surah; s++) {
+				const bundle = await getSurahTajwid(s);
+				if (cancelled) return;
+				if (bundle) map[s] = bundle;
+			}
+			if (!cancelled) setTajwidMap(map);
+		})();
+		return () => { cancelled = true; };
+	}, [showTajwid, meta]);
+
 	const stopAudio = () => { audioRef.current?.pause(); setCurrent(null); };
 	const toggleAyah = (key: string, url?: string) => {
 		if (!url) return;
@@ -165,7 +192,7 @@ export default function Juz() {
 
 			{/* Display toolbar */}
 			<div className="rounded-xl border border-gold-border bg-card p-3">
-				<div className="flex items-center justify-between">
+				<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 					<div
 						role="radiogroup"
 						aria-label={t("quran.showTranslation")}
@@ -190,14 +217,66 @@ export default function Juz() {
 							{t("quran.arabicTranslation")}
 						</button>
 					</div>
-					<span className="text-xs text-muted-foreground">{ayahs.length} ayat</span>
+					<div className="flex gap-1 rounded-lg bg-muted p-1">
+						<button
+							type="button"
+							onClick={() => setShowTajwid(!showTajwid)}
+							className={cn(showTajwid ? activePill : idlePill)}
+						>
+							{t("quran.tajwid")}
+						</button>
+						{showTajwid && (
+							<button
+								type="button"
+								onClick={() => setShowLegend((v) => !v)}
+								className={cn(
+									showLegend ? activePill : `${pillBase} bg-gold-surface text-teal hover:text-foreground`,
+								)}
+							>
+								{t("quran.tajwidLegend")}
+							</button>
+						)}
+					</div>
 				</div>
+
+				{showLegend && (
+					<div className="mt-3 grid gap-6 rounded-xl border border-gold-border bg-card p-4 animate-in fade-in-0 duration-200 sm:grid-cols-2 lg:grid-cols-4">
+						{LEGEND_GROUPS.map((group) => {
+							const rules = TAJWEED_RULES.filter((r) => group.match(r.id));
+							return (
+								<div key={group.titleKey} className="min-w-0">
+									<h3 className="mb-2 text-[10px] font-bold uppercase tracking-[0.1em] text-gold">
+										{t(group.titleKey)}
+									</h3>
+									<ul className="space-y-1.5">
+										{rules.map((rule) => (
+											<li key={rule.id} className="flex items-center gap-2 text-xs">
+												<span
+													aria-hidden
+													className="size-3 shrink-0 rounded-full border border-black/10 dark:border-white/20"
+													style={{ backgroundColor: rule.color }}
+												/>
+												<span className="leading-snug text-muted-foreground">
+													{t(group.titleKey) && rule.nameKey ? t(rule.nameKey as TKey) : rule.nameKey}
+												</span>
+											</li>
+										))}
+									</ul>
+								</div>
+							);
+						})}
+					</div>
+				)}
 			</div>
 
 			{/* Ayahs */}
 			<div className="space-y-3">
 				{ayahs.map((a) => {
 					const isPlaying = current === a.key;
+					const ayahTajwid =
+						showTajwid && tajwidMap[a.surah]
+							? tajwidMap[a.surah][a.inSurah - 1]
+							: undefined;
 					return (
 						<div
 							key={a.key}
@@ -217,7 +296,13 @@ export default function Juz() {
 									{a.inSurah}
 								</span>
 								<div className="min-w-0 flex-1 space-y-2">
-									<p className="font-arabic text-xl leading-[2] text-teal dark:text-primary" dir="rtl">{a.arab}</p>
+									{ayahTajwid ? (
+										<p className="font-arabic text-xl leading-[2] text-teal dark:text-primary">
+											{parseTajweed(ayahTajwid)}
+										</p>
+									) : (
+										<p className="font-arabic text-xl leading-[2] text-teal dark:text-primary" dir="rtl">{a.arab}</p>
+									)}
 									{showTranslation && a.translation && (
 										<p className="text-sm leading-relaxed text-muted-foreground">{a.translation}</p>
 									)}
