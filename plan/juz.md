@@ -52,7 +52,17 @@
 
 **Catatan:** Semua util (getSurahTajwid, parseTajweed, TAJWEED_RULES, LEGEND_GROUPS) sdh dipakai surah.tsx. Di juz tinggal rakit bundle multi-surat & lookup per ayat.
 
-## 🔄 Improvement (Plan / belum dikerjakan)
+**Verifikasi (done, 0 miss):** Semua 30 juz dicek — file tajwid lengkap utk semua surat dlm rentang, & panjang array tajwid **persis = jumlah ayat** surat. Jadi lookup `tajwid[surah][inSurah-1]` **tidak akan miss/salah ayat**. Bahkan utk juz yg mulai/berakhir di tengah surat tetap aman (lookup via `inSurah`, bukan index flat).
+
+**Keputusan implementasi: MAPPING BY LOGIC (Opsi A), TIDAK buat file json baru.**
+- Di `juz.tsx`, saat toggle tajwid ON → loop `getSurahTajwid(s)` utk tiap surat dlm rentang juz, simpan `Record<surah, string[]>`.
+- **Alasan:**
+  - Sumber data tunggal (helper yg sama dgn surah.tsx), tidak duplikasi / tidak perlu regenerate.
+  - `app/data/juz.json` tetap utk batas juz saja, bukan isi tajwid.
+  - Beban fetch kecil (1-3 surat, terkecuali juz 30 = 37 surat) & lazy-load saat toggle ON.
+- **Penyesuaian:** helper `getSurahTajwid` saat ini utk satu surat → tak perlu diubah; cukup panggil berulang di juz.
+
+## 🔍 Lanjutan
 
 ### A. Route → `/quran/juz/:number`
 - Ubah `app/routes.ts`: `route("juz/:number", ...)` → `route("quran/juz/:number", ...)`.
