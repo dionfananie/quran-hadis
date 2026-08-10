@@ -221,6 +221,31 @@ Create `app/routes/odoj.tsx`; update `app/routes.ts`.
 - User Google baru: dibuat otomatis utk email Google tsb. Email yang sudah terdaftar: di-link (update `google_id`).
 - Verifikasi manual setelah deploy: halaman login → klik "Login dengan Google" → pilih akun → redirect balik → session aktif → bisa masuk `/odoj`.
 
+## Improvement UX/UI ODOJ (PLAN)
+
+> Kumpulan perbaikan polish ODOJ. Di-eksekusi bertahap. Konsep & detail di sini — referensi untuk eksekusi.
+
+1. **Entry point ODOJ di header/menu** — tambah link/menu masuk ke halaman `/odoj` dari header atau menu utama (`app/components/top-nav.tsx` & `mobile-top-bar.tsx`), supaya user mudah menemukan ODOJ (tidak hanya lewat `/more`).
+
+2. **Datepicker yang lebih bagus** — di halaman admin ODOJ, ganti `input type="date"` native dengan **datepicker custom tailwind** yang lebih nyaman. Referensi: pattern flowbite datepicker (`https://flowbite.com/docs/components/datepicker/`) **TAPI TANPA nambah package** — buat sendiri pakai Tailwind (kalender popup, pilih tanggal). Gak perlu dependensi ekstra.
+
+3. **Info/share group link** — di section link ODOJ group yang bisa dishare, tambahkan **teks penjelasan di atasnya** yang **user-friendly** (jelaskan fungsinya link itu, untuk dibagi ke peserta). **Minta agent UX-writer untuk menulis teks ini.**
+   - (pendekatan: siapkan slot teks & minta penulisan copy user-friendly oleh UX-writer).
+
+4. **Tombol salin → "Share Group Link"** — ketika user **klik "Salin Link View"**, ganti teks/statusnya jadi **"Share Group Link"** (lebih jelas fungsinya untuk dibagikan).
+
+5. **Toast sukses (Radix)** — ketika link berhasil disalin, tampilkan **notifikasi toast** pakai **Radix UI toast component** (`@radix-ui/react-toast` atau komponen toast yang sudah ada), bukan `alert()`. Teks: "Link berhasil disalin".
+
+6. **View publik — tampilkan nama admin** — di halaman view ODOJ (`odoj-view.tsx`), tampilkan **nama admin** (pemilik group) di bagian atas, supaya peserta tahu siapa admin/penanggung group.
+
+### Avatar User (header) — pakai Radix UI Avatar
+- Untuk **menu user icon** di header: pakai **Radix UI `Avatar` component** (sudah ada `app/components/ui/avatar.tsx`). Tampilkan `avatar_url` jika ada, placeholder jika tidak.
+
+### Catatan implementasi
+- Pasang `@radix-ui/react-toast` (kalau komponen toast belum ada) untuk #5. Avatar sudah ada.
+- Baca `app/components/ui/avatar.tsx` & komponen toast yang ada sebelum implement.
+- Semua GAK perlu package baru kecuali toast (jika belum ada).
+
 ## Task 4: Halaman View Publik + Redirect Peserta (tanpa login)
 
 1. Call `GET /api/odoj/view?group=…&date=…`.
