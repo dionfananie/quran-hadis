@@ -63,7 +63,7 @@ export default function OdojHistoryDate() {
 						<Link to="/odoj/history">
 							<Button variant="outline" size="sm">← List</Button>
 						</Link>
-						<Link to="/odoj">
+						<Link to={`/odoj/create?date=${date}`}>
 							<Button variant="outline" size="sm">Edit Assign</Button>
 						</Link>
 					</div>

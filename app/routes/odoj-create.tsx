@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as Toast from "radix-ui/toast";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -157,7 +157,14 @@ function GroupSetup({ onCreated }: { onCreated: () => void }) {
 // ── Main dashboard (assign + kelola nama + share) ───────────
 function Dashboard({ group, onGroupRefresh }: { group: NonNullable<Group>; onGroupRefresh: () => void }) {
 	const { t } = useI18n();
-	const [date, setDate] = useState(todayStr());
+	const [searchParams] = useSearchParams();
+	const urlDate = searchParams.get("date") || "";
+	const todayStr2 = ((): string => {
+		if (/^\d{4}-\d{2}-\d{2}$/.test(urlDate)) return urlDate;
+		const d = new Date();
+		return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+	})();
+	const [date, setDate] = useState(todayStr2);
 	const [participants, setParticipants] = useState<Participant[]>([]);
 	const [assign, setAssign] = useState<Assignment[]>([]);
 	const [newName, setNewName] = useState("");

@@ -221,6 +221,17 @@ Create `app/routes/odoj.tsx`; update `app/routes.ts`.
 - User Google baru: dibuat otomatis utk email Google tsb. Email yang sudah terdaftar: di-link (update `google_id`).
 - Verifikasi manual setelah deploy: halaman login → klik "Login dengan Google" → pilih akun → redirect balik → session aktif → bisa masuk `/odoj`.
 
+## Edit Assign dari Halaman History (PLAN)
+> Fix: tombol "Edit Assign" di detail history tidak berfungsi (cuma `<Link to="/odoj">` yg sekarang jadi landing, dan tanggal tidak terbawa).
+
+**Masalah:** `app/routes/odoj-history-date.tsx` baris "Edit Assign" mengarah ke `/odoj` (landing), bukan halaman create, dan konteks tanggal hilang. Juga, halaman create default ke "hari ini" bukan tanggal yang sedang dilihat.
+
+**Plan:**
+1. **Halaman create** (`odoj-create.tsx`) — baca query param `?date=YYYY-MM-DD` dari URL, pakai sbg tanggal awal state (fallback: hari ini). Via `useSearchParams()`.
+2. **Halaman detail history** (`odoj-history-date.tsx`) — ganti tombol "Edit Assign" → `<Link to={'/odoj/create?date='+date}>` (ke halaman create dgn tanggal tsb).
+3. Backend sudah mendukung (GET `/api/odoj/assignments?date=` pre-fill; PUT utk set/toggle).
+4. Alur: user lihat detail history → klik "Edit Assign" → masuk halaman create dgn tanggal ter-prefil → edit assign → simpan → kembali/lihat riwayat berubah.
+
 ## Improvement UX/UI ODOJ (PLAN)
 
 > Kumpulan perbaikan polish ODOJ. Di-eksekusi bertahap. Konsep & detail di sini — referensi untuk eksekusi.
