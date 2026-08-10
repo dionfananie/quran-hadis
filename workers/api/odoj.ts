@@ -230,11 +230,12 @@ odojApp.get("/auth/google/callback", async (c) => {
 				.bind(googleId, name, avatar, uid)
 				.run();
 		} else {
-			// User baru → buat.
+			// User baru → buat. Kolom password_hash & salt NOT NULL → isi placeholder
+			// (akun Google tidak pakai password; hanya untuk memenuhi skema).
 			uid = `g_${randomToken()}`;
 			await d
-				.prepare(`INSERT INTO users (id, email, google_id, name, avatar_url) VALUES (?, ?, ?, ?, ?)`)
-				.bind(uid, email, googleId, name, avatar)
+				.prepare(`INSERT INTO users (id, email, password_hash, salt, google_id, name, avatar_url) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+				.bind(uid, email, "", "", googleId, name, avatar)
 				.run();
 		}
 
