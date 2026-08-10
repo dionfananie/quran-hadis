@@ -268,6 +268,19 @@ Create `app/routes/odoj.tsx`; update `app/routes.ts`.
   - Tambah route di `app/routes.ts`: `route("odoj/create", "routes/odoj-create.tsx")`.
 - **Guard login** di `/odoj/create`: cek `/api/auth/me` → kalau tidak login → `nav('/login', { state: { from: '/odoj/create' } })`.
 
+## Halaman Juz (PLAN)
+> Memperbaiki alur ODOJ "Baca Juz Ini" yg dulu salah arah ke `/quran/<n>` (= surat, bukan juz). Buat halaman juz standalone.
+
+**Data mapping juz:** Diambil dari data nyata (`public/data/quran/<surah>.json` → tiap ayah punya `meta.juz`). Di-generate menjadi `app/data/juz.json` (30 juz, tiap juz: start & end `{surah, ayah}`). **TIDAK manual/tebakan** — akurat dari data.
+
+**Yang dibuat:**
+1. `app/data/juz.json` — mapping juz → rentang surat & ayah start/end. ✅ sudah dibuat.
+2. `app/routes/quran/juz.tsx` — halaman `/juz/:number` menampilkan seluruh ayat juz tsb (load surat-surat dlm rentang, filter `meta.juz === n`). Plus tombol "Selesai Dibaca" bila ada `odoj_token` (POST `/api/odoj/read/complete`).
+3. `app/routes.ts` — tambah `route("juz/:number", ...)`.
+4. `app/routes/odoj-view.tsx` — ganti link "Baca Juz Ini" → `/juz/<n>` (bukan `/quran/<n>`).
+
+**Catatan:** semua item sdh dikerjakan (belum commit). Tinggal typecheck-build & commit-push bila disetujui.
+
 ## Task 4: Halaman View Publik + Redirect Peserta (tanpa login)
 
 1. Call `GET /api/odoj/view?group=…&date=…`.

@@ -5,6 +5,7 @@ export default [
 	route("quran", "routes/quran/index.tsx"),
 	route("quran/:number", "routes/quran/surah.tsx"),
 	route("quran/:number/:ayah", "routes/quran/ayah.tsx"),
+	route("juz/:number", "routes/quran/juz.tsx"),
 	route("hadith", "routes/hadith/index.tsx"),
 	route("hadith/:book", "routes/hadith/book.tsx"),
 	route("hadith/:book/:number", "routes/hadith/hadith.tsx"),
