@@ -39,6 +39,7 @@ type FetchState<T> = { data: T | null; loading: boolean; error: string };
 
 export default function OdojAdmin() {
 	const nav = useNavigate();
+	const { t } = useI18n();
 	const [auth, setAuth] = useState<FetchState<{ user?: { id: string; email: string } | null }>>({
 		data: null,
 		loading: true,
@@ -70,7 +71,7 @@ export default function OdojAdmin() {
 		if (auth.data && auth.data.user) loadGroup();
 	}, [auth.data]);
 
-	if (auth.loading || auth.error) return <div className="p-8 text-center">Memuat…</div>;
+	if (auth.loading || auth.error) return <div className="p-8 text-center">{t("odoj.loading")}</div>;
 	if (!auth.data?.user) return <div className="p-8 text-center">Redirecting…</div>;
 
 	// belum punya group → setup
@@ -87,7 +88,7 @@ export default function OdojAdmin() {
 				</div>
 				<div className="flex gap-2">
 					<Link to="/odoj/history">
-						<Button variant="outline">Riwayat</Button>
+						<Button variant="outline">{t("odoj.history")}</Button>
 					</Link>
 					<Button
 						variant="ghost"
@@ -96,13 +97,13 @@ export default function OdojAdmin() {
 							nav("/login");
 						}}
 					>
-						Keluar
+						{t("odoj.logout")}
 					</Button>
 				</div>
 			</div>
 
 			{group.loading ? (
-				<div className="p-6 text-center text-muted-foreground">Memuat group…</div>
+				<div className="p-6 text-center text-muted-foreground">{t("odoj.loadingGroup")}</div>
 			) : hasGroup ? (
 				<Dashboard group={hasGroup} onGroupRefresh={loadGroup} />
 			) : (
@@ -114,6 +115,7 @@ export default function OdojAdmin() {
 
 // ── Setup group (belum punya) ───────────────────────────────
 function GroupSetup({ onCreated }: { onCreated: () => void }) {
+	const { t } = useI18n();
 	const [name, setName] = useState("");
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -137,16 +139,16 @@ function GroupSetup({ onCreated }: { onCreated: () => void }) {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle className="text-lg">Buat Group ODOJ</CardTitle>
-				<CardDescription>Buat group untuk mulai menugaskan juz ke peserta</CardDescription>
+				<CardTitle className="text-lg">{t("odoj.createGroupTitle")}</CardTitle>
+				<CardDescription>{t("odoj.createGroupDesc")}</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-4">
 				{error && <p className="text-sm text-red-600">{error}</p>}
 				<div className="space-y-2">
-					<Label htmlFor="gname">Nama Group</Label>
-					<Input id="gname" placeholder="contoh: Group Tahfidz Masjid" value={name} onChange={(e) => setName(e.target.value)} />
+					<Label htmlFor="gname">{t("odoj.groupName")}</Label>
+					<Input id="gname" placeholder={t("odoj.groupNamePlaceholder")} value={name} onChange={(e) => setName(e.target.value)} />
 				</div>
-				<Button onClick={create} disabled={loading}>{loading ? "Membuat…" : "Buat Group"}</Button>
+				<Button onClick={create} disabled={loading}>{loading ? t("odoj.created") : t("odoj.createBtn")}</Button>
 			</CardContent>
 		</Card>
 	);
@@ -243,10 +245,10 @@ function Dashboard({ group, onGroupRefresh }: { group: NonNullable<Group>; onGro
 				<CardContent className="space-y-4 pt-6">
 					<div className="flex flex-wrap items-end gap-3">
 						<div className="space-y-2">
-							<Label>Tanggal</Label>
+							<Label>{t("odoj.date")}</Label>
 							<NativeDate current={date} onSelect={setDate} />
 						</div>
-						<Badge variant="secondary">{doneCount}/{assign.length} selesai</Badge>
+						<Badge variant="secondary">{doneCount}/{assign.length} {t("odoj.doneLabel")}</Badge>
 					</div>
 					{linkView && (
 						<div className="space-y-2 rounded-lg border bg-muted/30 p-3">
@@ -274,12 +276,12 @@ function Dashboard({ group, onGroupRefresh }: { group: NonNullable<Group>; onGro
 			{/* Kelola nama */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-lg">Kelola Nama Peserta</CardTitle>
+					<CardTitle className="text-lg">{t("odoj.manageParticipants")}</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-3">
 					<div className="flex gap-2">
-						<Input placeholder="Nama peserta" value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addParticipant()} />
-						<Button onClick={addParticipant}>Tambah</Button>
+						<Input placeholder={t("odoj.participantPlaceholder")} value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addParticipant()} />
+						<Button onClick={addParticipant}>{t("odoj.add")}</Button>
 					</div>
 					<div className="flex flex-wrap gap-2">
 						{participants.map((p) => (
@@ -290,7 +292,7 @@ function Dashboard({ group, onGroupRefresh }: { group: NonNullable<Group>; onGro
 								</button>
 							</Badge>
 						))}
-						{participants.length === 0 && <span className="text-sm text-muted-foreground">Belum ada peserta</span>}
+						{participants.length === 0 && <span className="text-sm text-muted-foreground">{t("odoj.noParticipants")}</span>}
 					</div>
 				</CardContent>
 			</Card>
@@ -298,12 +300,12 @@ function Dashboard({ group, onGroupRefresh }: { group: NonNullable<Group>; onGro
 			{/* Assign 30 juz */}
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-lg">Assign Juz 1–30</CardTitle>
-					<CardDescription>Pilih peserta utk tiap juz. Kosong = belum di-assign.</CardDescription>
+					<CardTitle className="text-lg">{t("odoj.assignTitle")}</CardTitle>
+					<CardDescription>{t("odoj.assignDesc")}</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-3">
 					{loading ? (
-						<div className="p-4 text-center text-muted-foreground">Memuat…</div>
+						<div className="p-4 text-center text-muted-foreground">{t("odoj.loading")}</div>
 					) : (
 						<div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
 							{Array.from({ length: 30 }, (_, i) => i + 1).map((juz) => {
@@ -326,7 +328,7 @@ function Dashboard({ group, onGroupRefresh }: { group: NonNullable<Group>; onGro
 											value={a?.participant_id || ""}
 											onChange={(e) => setAssignment(juz, e.target.value)}
 										>
-											<option value="">— kosong —</option>
+											<option value="">{t("odoj.empty")}</option>
 											{participants.map((p) => (
 												<option key={p.id} value={p.id}>{p.name}</option>
 											))}

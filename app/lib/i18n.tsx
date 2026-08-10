@@ -212,6 +212,27 @@ const id = {
 	"odoj.copied": "Link berhasil disalin",
 	"odoj.copiedDesc": "Bagikan link ke group peserta ya.",
 	"odoj.viewAdmin": "Admin",
+
+	// ODOJ create page
+	"odoj.loading": "Memuat…",
+	"odoj.loadingGroup": "Memuat group…",
+	"odoj.history": "Riwayat",
+	"odoj.logout": "Keluar",
+	"odoj.createGroupTitle": "Buat Group ODOJ",
+	"odoj.createGroupDesc": "Buat group untuk mulai menugaskan juz ke peserta",
+	"odoj.groupName": "Nama Group",
+	"odoj.groupNamePlaceholder": "contoh: Group Tahfidz Masjid",
+	"odoj.createBtn": "Buat Group",
+	"odoj.created": "Membuat…",
+	"odoj.date": "Tanggal",
+	"odoj.manageParticipants": "Kelola Nama Peserta",
+	"odoj.participantPlaceholder": "Nama peserta",
+	"odoj.add": "Tambah",
+	"odoj.noParticipants": "Belum ada peserta",
+	"odoj.assignTitle": "Assign Juz 1–30",
+	"odoj.assignDesc": "Pilih peserta utk tiap juz. Kosong = belum di-assign.",
+	"odoj.empty": "— kosong —",
+	"odoj.doneLabel": "selesai",
 } as const;
 
 const en: Record<keyof typeof id, string> = {
@@ -416,6 +437,27 @@ const en: Record<keyof typeof id, string> = {
 	"odoj.copied": "Link copied successfully",
 	"odoj.copiedDesc": "Share the link to the participant group.",
 	"odoj.viewAdmin": "Admin",
+
+	// ODOJ create page
+	"odoj.loading": "Loading…",
+	"odoj.loadingGroup": "Loading group…",
+	"odoj.history": "History",
+	"odoj.logout": "Log out",
+	"odoj.createGroupTitle": "Create ODOJ Group",
+	"odoj.createGroupDesc": "Create a group to start assigning juz to participants",
+	"odoj.groupName": "Group Name",
+	"odoj.groupNamePlaceholder": "e.g. Tahfidz Mosque Group",
+	"odoj.createBtn": "Create Group",
+	"odoj.created": "Creating…",
+	"odoj.date": "Date",
+	"odoj.manageParticipants": "Manage Participant Names",
+	"odoj.participantPlaceholder": "Participant name",
+	"odoj.add": "Add",
+	"odoj.noParticipants": "No participants yet",
+	"odoj.assignTitle": "Assign Juz 1–30",
+	"odoj.assignDesc": "Pick a participant for each juz. Empty = not assigned.",
+	"odoj.empty": "— empty —",
+	"odoj.doneLabel": "done",
 };
 
 export type TKey = keyof typeof id;
