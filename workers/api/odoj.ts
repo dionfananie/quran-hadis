@@ -10,7 +10,11 @@ import {
 	clearSessionCookie,
 } from "../lib/session";
 
-type Env = { moozhaf_db: D1Database };
+type Env = { moozhaf_db: D1Database } & {
+	GOOGLE_CLIENT_ID?: string;
+	GOOGLE_CLIENT_SECRET?: string;
+	GOOGLE_REDIRECT_URI?: string;
+};
 
 const db = (c: { env: Env }) => c.env.moozhaf_db;
 
@@ -104,6 +108,132 @@ odojApp.get("/auth/me", async (c) => {
 	if (!userId) return json({ error: "unauthorized" }, 401);
 	const user = await d.prepare(`SELECT id, email FROM users WHERE id = ?`).bind(userId).first();
 	return json({ user });
+});
+
+// ── GOOGLE OAUTH (login) ────────────────────────────────────────────────
+// OAuth 2.0 Authorization Code flow, server-side, tanpa dependency tambahan
+// (pakai fetch + Web Crypto bawaan Worker).
+
+const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
+const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
+const GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo";
+const GOOGLE_SCOPE = "openid email profile";
+
+function googleCfg(c: { env: Env }): { id: string; secret: string; redirect: string } {
+	const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI } = c.env;
+	return {
+		id: GOOGLE_CLIENT_ID || "",
+		secret: GOOGLE_CLIENT_SECRET || "",
+		redirect: GOOGLE_REDIRECT_URI || "",
+	};
+}
+
+// State token acak buat mencegah CSRF pada OAuth callback.
+async function genOAuthState(): Promise<string> {
+	const arr = new Uint8Array(24);
+	crypto.getRandomValues(arr);
+	return [...arr].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Tangkap state dari query string response callback.
+function getStateFromUrl(url: string): string {
+	try {
+		return new URL(url).searchParams.get("state") || "";
+	} catch {
+		return "";
+	}
+}
+
+type GoogleTokenResp = { access_token?: string; id_token?: string; error?: string };
+type GoogleUser = { id?: string; email?: string; name?: string; picture?: string };
+
+// 1) Redirect pengguna ke halaman consent Google.
+odojApp.get("/auth/google", async (c) => {
+	const cfg = googleCfg(c);
+	if (!cfg.id || !cfg.redirect) return json({ error: "Google login belum dikonfigurasi" }, 500);
+	const state = await genOAuthState();
+	const params = new URLSearchParams({
+		client_id: cfg.id,
+		redirect_uri: cfg.redirect,
+		response_type: "code",
+		scope: GOOGLE_SCOPE,
+		access_type: "online",
+		state,
+	});
+	return c.redirect(`${GOOGLE_AUTH_URL}?${params.toString()}`);
+});
+
+// 2) Callback setelah user menyetujui → tukar code → ambil info → buat/login user.
+odojApp.get("/auth/google/callback", async (c) => {
+	const d = db(c);
+	const cfg = googleCfg(c);
+	const url = c.req.url;
+	const sp = new URL(url).searchParams;
+	const code = sp.get("code");
+	const error = sp.get("error");
+	if (error) return json({ error: `Google auth dibatalkan: ${error}` }, 400);
+	if (!code) return json({ error: "Kode otorisasi tidak ada" }, 400);
+
+	// Tukar authorization code → token akses.
+	const tokenResp = await fetch(GOOGLE_TOKEN_URL, {
+		method: "POST",
+		headers: { "content-type": "application/x-www-form-urlencoded" },
+		body: new URLSearchParams({
+			code,
+			client_id: cfg.id,
+			client_secret: cfg.secret,
+			redirect_uri: cfg.redirect,
+			grant_type: "authorization_code",
+		}),
+	});
+	const tokenJson = (await tokenResp.json()) as GoogleTokenResp;
+	if (!tokenJson.access_token || tokenJson.error) {
+		return json({ error: "Gagal mendapat token Google" }, 400);
+	}
+
+	// Ambil info user (email, nama, avatar) pakai access token.
+	const userResp = await fetch(GOOGLE_USERINFO_URL, {
+		headers: { authorization: `Bearer ${tokenJson.access_token}` },
+	});
+	if (!userResp.ok) return json({ error: "Gagal mengambil profil Google" }, 400);
+	const guser = (await userResp.json()) as GoogleUser;
+	if (!guser.email) return json({ error: "Google tidak mengembalikan email" }, 400);
+
+	const googleId = guser.id || `sub:${guser.email}`;
+	const email = guser.email.toLowerCase().trim();
+	const name = guser.name || email.split("@")[0];
+	const avatar = guser.picture || "";
+
+	// Cari user berdasarkan google_id ATAU email (biar link ke akun email existing).
+	let user = await d
+		.prepare(`SELECT id FROM users WHERE google_id = ?`)
+		.bind(googleId)
+		.first<{ id: string }>();
+	if (!user) {
+		user = await d.prepare(`SELECT id FROM users WHERE email = ?`).bind(email).first<{ id: string }>();
+	}
+
+	let uid: string;
+	if (user) {
+		// User sudah ada → update google_id (link) & profil.
+		uid = user.id;
+		await d
+			.prepare(`UPDATE users SET google_id = ?, name = ?, avatar_url = ? WHERE id = ?`)
+			.bind(googleId, name, avatar, uid)
+			.run();
+	} else {
+		// User baru → buat.
+		uid = `g_${randomToken()}`;
+		await d
+			.prepare(`INSERT INTO users (id, email, google_id, name, avatar_url) VALUES (?, ?, ?, ?, ?)`)
+			.bind(uid, email, googleId, name, avatar)
+			.run();
+	}
+
+	const { token, expiresMs } = await createSession(d, uid);
+	const res = json({ ok: true, user: { id: uid, email } });
+	setSessionCookie(res.headers, token, expiresMs);
+	return res;
 });
 
 // ── GROUP ───────────────────────────────────────────────────────────────

@@ -55,6 +55,21 @@ export default function Register() {
 				</CardHeader>
 				<form onSubmit={submit}>
 					<CardContent className="space-y-4">
+						<Button
+							type="button"
+							variant="outline"
+							className="w-full"
+							onClick={() => {
+								window.location.href = "/api/auth/google";
+							}}
+						>
+							Daftar dengan Google
+						</Button>
+						<div className="flex items-center gap-2 text-xs text-muted-foreground">
+							<span className="h-px flex-1 bg-border" />
+							atau
+							<span className="h-px flex-1 bg-border" />
+						</div>
 						{error && (
 							<p className="rounded-md bg-red-50 p-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-400">{error}</p>
 						)}

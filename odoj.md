@@ -197,12 +197,35 @@ Create `app/routes/odoj.tsx`; update `app/routes.ts`.
   - **Halaman "Riwayat" (list tanggal)** (`/odoj/history`): semua tanggal berpenugasan, urut terbaru. Tiap baris: tanggal + ringkasan **`X/30 terisi · Y/30 selesai`** + tombol **"Copy format ini"** + link ke detail + link view publik.
   - **Halaman "Riwayat detail"** (`/odoj/history/:date`): isi penugasan tanggal tsb — juz 1–30 + nama + status (selesai/belum). Tombol "Edit"/"Copy" → halaman assign terisi; tombol "Selesai dibaca"/undo per juz.
 
+## Login Google (OAuth 2.0 — code flow server-side)
+
+> Tambahan untuk auth: pengguna bisa **masuk/daftar dengan Google** sebagai opsi tambahan di samping email/password. Keputusan: **Opsi A (tambahan)** + **Opsi X (code flow server-side)**, tanpa dependency tambahan (pakai `fetch` + Web Crypto bawaan Worker).
+
+### Setup (sudah dilakukan)
+- **[Google Cloud Console]** OAuth Client "Web application" dibuat di project `oppia-world`. Nilai `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` **disimpan di `.env` lokal (di-ignore git)** dan sebagai **secrets Cloudflare** — JANGAN tulis nilai rahasia di file repo.
+  - `GOOGLE_REDIRECT_URI` = `https://moozhaf.oppia.world/api/auth/google/callback` (sudah di-set di OAuth consent screen)
+- **[Cloudflare worker]** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` di-set sebagai **secrets** (`wrangler secret put`). Di lokal: `.env`.
+
+### Endpoint (di `workers/api/odoj.ts`, Hono)
+- `GET /api/auth/google` → redirect pengguna ke Google consent (`GOOGLE_AUTH_URL`) dgn `client_id`, `redirect_uri`, `response_type=code`, `scope=openid email profile`, `state` (CSRF, random).
+- `GET /api/auth/google/callback` → tukar `code` → `POST GoogleTokenURL` → ambil user info (`userinfo`) → cari user by `google_id`/`email` → buat/link + set session cookie (via `createSession`/`setSessionCookie`).
+- Scope: `openid email profile`. Tanpa dependency; `googleCfg()` membaca `c.env.GOOGLE_*`.
+
+### Migration
+- `migrations/0002_google_auth.sql` → `ALTER TABLE users ADD COLUMN google_id/name/avatar_url`. **Wajib di-apply remote** sebelum deploy kalau belum: `npx --yes wrangler@4.88.0 d1 execute moozhaf-db --remote --file=migrations/0002_google_auth.sql`
+
+### UI
+- `app/routes/login.tsx` & `register.tsx`: tambah tombol "Login/Daftar dengan Google" (outline) di atas form → `window.location.href = "/api/auth/google"`, dengan pembatas "atau".
+
+### Catatan
+- User Google baru: dibuat otomatis utk email Google tsb. Email yang sudah terdaftar: di-link (update `google_id`).
+- Verifikasi manual setelah deploy: halaman login → klik "Login dengan Google" → pilih akun → redirect balik → session aktif → bisa masuk `/odoj`.
+
 ## Task 4: Halaman View Publik + Redirect Peserta (tanpa login)
 
-- **Halaman View** (`/odoj/view?group=<group_token>&date=YYYY-MM-DD`) — **public, tanpa login**:
-  1. Call `GET /api/odoj/view?group=…&date=…`.
-  2. Tampilkan nama group + judul (tanggal) + **tabel 30 juz**: kolom Juz | Nama | status (Selesai/Belum). Tiap baris = link **"Baca juz ini"** (ke halaman baca juz + token).
-  3. Token group salah / tidak ada data tanggal tsb → pesan "Belum ada penugasan untuk tanggal ini" / "Link tidak valid".
+1. Call `GET /api/odoj/view?group=…&date=…`.
+2. Tampilkan nama group + judul (tanggal) + **tabel 30 juz**: kolom Juz | Nama | status (Selesai/Belum). Tiap baris = link **"Baca juz ini"** (ke halaman baca juz + token).
+3. Token group salah / tidak ada data tanggal tsb → pesan "Belum ada penugasan untuk tanggal ini" / "Link tidak valid".
 - **Redirect & tombol "Selesai dibaca"** (di halaman baca juz `/quran/:juz`):
   1. Klik baris → redirect `/quran/<juz>?odoj_token=<token>`.
   2. Halaman baca juz, bila ada `odoj_token` → tampilkan tombol **"Selesai dibaca"** → `POST /api/odoj/read/complete {token}` → feedback sukses ("Alhamdulillah, tercatat").
