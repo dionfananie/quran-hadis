@@ -246,6 +246,17 @@ Create `app/routes/odoj.tsx`; update `app/routes.ts`.
 - Baca `app/components/ui/avatar.tsx` & komponen toast yang ada sebelum implement.
 - Semua GAK perlu package baru kecuali toast (jika belum ada).
 
+### Restrukturisasi routing ODOJ (REQUIREMENT TAMBAHAN)
+- **`/odoj/create`** = route **halaman isian ODOJ** (yang sekarang di `/odoj` — setup group, assign, kelola nama, share). **Harus login** (guard redirect ke `/login`).
+- **`/odoj`** = **halaman landing ODOJ** (baru) — menjelaskan fitur ODOJ **semenarik mungkin**, user tau bisa apa aja:
+  - Pakai **card-card info** (fitur per card).
+  - Tombol **CTA "Mulai ODOJ"** & **"Buat Group ODOJ"** → keduanya redirect ke **`/odoj/create`**.
+  - Karena create butuh login: kalau belum login → **redirect ke `/login` dulu** lalu **return ke `/odoj/create`** (state `from`).
+- **Routing files**:
+  - `app/routes/odoj.tsx` → ini nanti jadi **landing** (atau bikin baru `app/routes/odoj.tsx` utk landing, `odoj/create.tsx` utk form).
+  - Tambah route di `app/routes.ts`: `route("odoj/create", "routes/odoj-create.tsx")`.
+- **Guard login** di `/odoj/create`: cek `/api/auth/me` → kalau tidak login → `nav('/login', { state: { from: '/odoj/create' } })`.
+
 ## Task 4: Halaman View Publik + Redirect Peserta (tanpa login)
 
 1. Call `GET /api/odoj/view?group=…&date=…`.
