@@ -301,14 +301,14 @@ function AdminDashboard({ group, onGroupRefresh, initDate }: { group: Group; onG
 									].join(" ")}
 								>
 									<div className="mb-0.5 flex items-start justify-between">
-										<span className={`text-[9px] font-semibold tracking-widest ${doneJ ? "opacity-70" : "text-muted-foreground"}`}>JUZ</span>
-										{doneJ && <Check className="size-3" />}
+										<span className={`text-[9px] font-semibold tracking-widest ${doneJ ? "text-white/90" : "text-muted-foreground"}`}>JUZ</span>
+										{doneJ && <Check className="size-3 text-white" />}
 									</div>
-									<div className="font-serif text-lg font-bold leading-none">{n}</div>
-									<div className={`mt-0.5 truncate text-[9px] leading-tight ${doneJ ? "opacity-70" : "text-muted-foreground"}`}>{JUZ_NAMES[n]}</div>
+									<div className={`font-serif text-lg font-bold leading-none ${doneJ ? "text-white" : "text-foreground"}`}>{n}</div>
+									<div className={`mt-0.5 truncate text-[9px] leading-tight ${doneJ ? "text-white/90" : "text-muted-foreground"}`}>{JUZ_NAMES[n]}</div>
 									{a && (
 										<div className="mt-1 flex flex-wrap gap-0.5">
-											<span className={`rounded px-1 py-0.5 text-[8px] font-medium ${doneJ ? "bg-white/20" : "bg-teal/10 text-teal dark:text-primary"}`}>{a.name}</span>
+											<span className={`rounded px-1 py-0.5 text-[8px] font-semibold ${doneJ ? "bg-white text-teal dark:bg-primary-foreground dark:text-primary" : "bg-teal/10 text-teal dark:text-primary"}`}>{a.name}</span>
 										</div>
 									)}
 								</button>
