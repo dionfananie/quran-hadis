@@ -52,7 +52,7 @@ async function requireGroup(c: {
 		.first<{ id: string; name: string; token: string }>();
 }
 
-export const odojApp = new Hono<{ Bindings: Env }>();
+export const odojApp = new Hono<{ Bindings: Env }>().basePath("/api");
 
 // ── AUTH ────────────────────────────────────────────────────────────────
 odojApp.post("/auth/register", async (c) => {
