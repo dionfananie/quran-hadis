@@ -268,6 +268,44 @@ Create `app/routes/odoj.tsx`; update `app/routes.ts`.
   - Tambah route di `app/routes.ts`: `route("odoj/create", "routes/odoj-create.tsx")`.
 - **Guard login** di `/odoj/create`: cek `/api/auth/me` → kalau tidak login → `nav('/login', { state: { from: '/odoj/create' } })`.
 
+## Revamp ODOJ Creation Page (PLAN)
+> Menerapkan ulang **design & fitur** halaman assignment ODOJ dari repo Figma **`~/project/QuranReaderAssignmentPage`** ke halaman create Moozhaf (`app/routes/odoj-create.tsx`).
+
+**Sumber desain:** `~/project/QuranReaderAssignmentPage/src/app/App.tsx` (Vite/React 18, dari Figma). Fitur & layout akan disalin-sesuaikan ke Moozhaf (React Router 7 + Tailwind + Radix).
+
+**Desain Figma yang ditiru (dari App.tsx):**
+- **Header**: judul "Khatam Al-Quran" + ornament geometris + progress ring (`ProgressRing`) + text `X/30 selesai · Y ditetapkan · Z peserta`.
+- **Struktur 2 kolom** (lg): kiri = **grid 30 juz**, kanan = **settings & peserta**.
+- **Grid juz (kartu per juz 1-30)** dengan status warna:
+  - `done` (bg-primary) · `assigned to selected` (accent) · `HARI INI` (amber) · `Lampau` (destructive) · kosong (card).
+  - Tiap kartu: label "JUZ", nomor besar (font Amiri), nama juz, tanggal target (`juzDate` dari startDate), badge nama peserta (assignees).
+- **Selected reader flow**: pilih peserta di kanan → klik kartu juz untuk tetapkan/batalkan.
+- **Settings**: nama program (`title`), nama admin (`adminName`), **date picker start date** (`DatePickerField` dgn icon kalender).
+- **Share group link banner** (`ShareGroupBanner`): text user-friendly + tombol "Share Group Link" / "Tersalin!" (check).
+- **Kelola peserta**: input tambah (Enter/button), daftar (expand utk lihat juz ditetapkan + tanda selesai), salin link per-peserta (`copyReaderLink`), hapus.
+- **Legend** "Petunjuk" warna status.
+
+**Fitur yang disamakan (fungsional):**
+1. Grid 30 juz interaktif (assign per peserta via selected reader).
+2. Multi-juz per peserta (`assignedJuz: number[]`, **1 peserta bisa pegang >1 juz** — sinkron dengan model Moozhaf).
+3. Tracking `completedJuz` per peserta + progress.
+4. Tanggal target per juz dari start date (juz ke-n = startDate + n-1 hari), menandai "HARI INI"/"Lampau".
+5. Share link group + link per peserta.
+6. Title & admin name editable.
+
+**Penyesuaian ke Moozhaf (tidak copy mentah):**
+- Data tersimpan di **D1** (via API `/api/odoj/*`) BUKAN localStorage — integrasikan dgn backend Moozhaf (group, participants, assignments per date).
+- Halaman pakai i18n id/en (seperti halaman lain).
+- Route tetap `/odoj/create` (+ login guard).
+- Komponen Radix/Tailwind Moozhaf, sesuaikan class (`bg-input-background`, `border-border`, dll).
+
+**Langkah eksekusi:**
+1. Baca penuh `App.tsx` (termasuk view pembaca/reader view bila ada) — dpt semua fitur.
+2. Dapat class/theme tokens yg cocok di Moozhaf (`muted`, `card`, `border`, `accent`, `primary`, `gold`, `teal`).
+3. Bangun ulang `odoj-create.tsx` mengikuti struktur Figma.
+4. Backend: pastikan API mendukung (participants, assignments by date, status done, multi-juz).
+5. Typecheck-build → commit-push → verifikasi.
+
 ## Halaman Juz (PLAN)
 > Memperbaiki alur ODOJ "Baca Juz Ini" yg dulu salah arah ke `/quran/<n>` (= surat, bukan juz). Buat halaman juz standalone.
 
