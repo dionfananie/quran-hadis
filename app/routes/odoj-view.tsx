@@ -95,7 +95,7 @@ export default function OdojView() {
 											{row.status === "done" ? (
 												<Badge className="bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400">✓ Selesai</Badge>
 											) : (
-												<Link to={`/juz/${row.juz_number}?odoj_token=${row.token}`}>
+												<Link to={`/quran/juz/${row.juz_number}?odoj_token=${row.token}`}>
 													<Button size="sm" variant="outline">Baca Juz Ini</Button>
 												</Link>
 											)}
