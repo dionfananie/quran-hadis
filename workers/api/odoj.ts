@@ -434,8 +434,16 @@ odojApp.put("/odoj/assignments", async (c) => {
 		juz_number?: number;
 		participant_id?: string;
 	}>();
-	if (!validDate(date || "") || !validJuz(Number(juz_number)) || !participant_id) {
+	if (!validDate(date || "") || !validJuz(Number(juz_number))) {
 		return json({ error: "data tidak valid" }, 400);
+	}
+	// participant_id kosong/undefined → lepas (unassign) assignment utk juz tsb.
+	if (!participant_id) {
+		await d
+			.prepare(`DELETE FROM odoj_assignment WHERE group_id = ? AND date = ? AND juz_number = ?`)
+			.bind(g.id, date, Number(juz_number))
+			.run();
+		return json({ ok: true });
 	}
 	const own = await d
 		.prepare(`SELECT id FROM odoj_participants WHERE id = ? AND group_id = ?`)

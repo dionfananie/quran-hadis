@@ -1,11 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as Toast from "radix-ui/toast";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Plus, X, Check, Users, Calendar, Share2, Star, ChevronDown, Trash2, Moon } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import type { Route } from "./+types/odoj-create";
 
@@ -13,11 +9,20 @@ export function meta({}: Route.MetaArgs) {
 	return [{ title: "Buat ODOJ | Moozhaf" }];
 }
 
-type Group = { id: string; name: string; token: string } | null;
+// ── Types & helpers ─────────────────────────────────────────────
+type Group = { id: string; name: string; token: string };
 type Participant = { id: string; name: string };
-type Assignment = { juz_number: number; participant_id: string; name: string; status: string; id: string };
+type Assignment = { id: string; juz_number: number; participant_id: string; name: string; status: string };
 
-// helper api
+const JUZ_NAMES: Record<number, string> = {
+	1: "Alif Lam Mim", 2: "Sayaqul", 3: "Tilka'r-Rusul", 4: "Lan Tana Lu", 5: "Wal Muhsanat",
+	6: "La Yuhibbullah", 7: "Wa Iza Sami'u", 8: "Wa Law Annana", 9: "Qalal Mala", 10: "Wa A'lamu",
+	11: "Ya'tadhirun", 12: "Wa Ma Min Dabbah", 13: "Wa Ma Ubarri'u", 14: "Rubama", 15: "Subhanalladhi",
+	16: "Qal Alam", 17: "Iqtaraba", 18: "Qad Aflaha", 19: "Wa Qalallathina", 20: "Amman Khalaqa",
+	21: "Utlu Ma Uhiya", 22: "Wa Man Yaqnut", 23: "Wa Mali", 24: "Faman Azlamu", 25: "Ilayhi Yuraddu",
+	26: "Ha Mim", 27: "Qala Fama Khatbukum", 28: "Qad Sami Allah", 29: "Tabaraka'lladhi", 30: "Amma Yatasa'alun",
+};
+
 async function api<T>(path: string, opts?: RequestInit): Promise<T> {
 	const res = await fetch(path, {
 		headers: { "Content-Type": "application/json" },
@@ -35,77 +40,72 @@ function todayStr() {
 	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-type FetchState<T> = { data: T | null; loading: boolean; error: string };
+function shortDate(s: string) {
+	if (!s) return "";
+	const d = new Date(s + "T00:00:00");
+	return d.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+}
 
-export default function OdojAdmin() {
+function isTodayStr(s: string) { return s === todayStr(); }
+function isPastStr(s: string) { return s < todayStr(); }
+
+// Progress ring (SVG, theme Moozhaf via currentColor)
+function ProgressRing({ pct, size = 52 }: { pct: number; size?: number }) {
+	const r = (size - 8) / 2;
+	const circ = 2 * Math.PI * r;
+	const offset = circ * (1 - Math.min(100, Math.max(0, pct)) / 100);
+	return (
+		<svg width={size} height={size} className="rotate-[-90deg] text-teal dark:text-primary">
+			<circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth="4" className="stroke-muted" />
+			<circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth="4" strokeLinecap="round"
+				strokeDasharray={circ} strokeDashoffset={offset} className="stroke-current transition-all duration-700" />
+		</svg>
+	);
+}
+
+// ── Main page ──────────────────────────────────────────────────────
+export default function OdojCreate() {
 	const nav = useNavigate();
 	const { t } = useI18n();
-	const [auth, setAuth] = useState<FetchState<{ user?: { id: string; email: string } | null }>>({
-		data: null,
-		loading: true,
-		error: "",
-	});
-	const [group, setGroup] = useState<FetchState<{ group: Group }>>({ data: null, loading: true, error: "" });
+	const [searchParams] = useSearchParams();
+	const urlDate = searchParams.get("date") || "";
+	const initDate = /^\d{4}-\d{2}-\d{2}$/.test(urlDate) ? urlDate : todayStr();
 
-	// auth check on mount
+	const [authChecked, setAuthChecked] = useState(false);
+	const [group, setGroup] = useState<Group | null>(null);
+	const [groupLoading, setGroupLoading] = useState(true);
+
+	// auth guard
 	useEffect(() => {
-		api<{ ok?: boolean; user?: { id: string; email: string } | null } | { error?: string }>("/api/auth/me")
+		api<{ user?: { id: string } | null } | { error?: string }>("/api/auth/me")
 			.then((d) => {
 				if (d && "error" in d) {
 					nav("/login", { replace: true, state: { from: "/odoj/create" } });
 				} else {
-					setAuth({ data: d as { user?: { id: string; email: string } | null }, loading: false, error: "" });
+					setAuthChecked(true);
 				}
 			})
 			.catch(() => nav("/login", { replace: true, state: { from: "/odoj/create" } }));
 	}, [nav]);
 
-	// check group
 	function loadGroup() {
-		setGroup({ data: null, loading: true, error: "" });
-		api<{ group: Group }>("/api/odoj/groups/me")
-			.then((d) => setGroup({ data: d, loading: false, error: "" }))
-			.catch((e) => setGroup({ data: null, loading: false, error: (e as Error).message }));
+		setGroupLoading(true);
+		api<{ group: Group | null }>("/api/odoj/groups/me")
+			.then((d) => setGroup(d.group))
+			.catch(() => setGroup(null))
+			.finally(() => setGroupLoading(false));
 	}
 	useEffect(() => {
-		if (auth.data && auth.data.user) loadGroup();
-	}, [auth.data]);
+		if (authChecked) loadGroup();
+	}, [authChecked]);
 
-	if (auth.loading || auth.error) return <div className="p-8 text-center">{t("odoj.loading")}</div>;
-	if (!auth.data?.user) return <div className="p-8 text-center">Redirecting…</div>;
-
-	// belum punya group → setup
-	const hasGroup = group.data?.group;
+	if (!authChecked) return <div className="p-10 text-center text-muted-foreground">{t("odoj.loading")}</div>;
+	if (groupLoading) return <div className="p-10 text-center text-muted-foreground">{t("odoj.loadingGroup")}</div>;
 
 	return (
-		<div className="mx-auto max-w-4xl space-y-6 p-4">
-			<div className="flex items-center justify-between">
-				<div>
-					<h1 className="text-2xl font-bold">One Day One Juz</h1>
-					<p className="text-sm text-muted-foreground">
-						Admin: {auth.data.user.email}
-					</p>
-				</div>
-				<div className="flex gap-2">
-					<Link to="/odoj/history">
-						<Button variant="outline">{t("odoj.history")}</Button>
-					</Link>
-					<Button
-						variant="ghost"
-						onClick={async () => {
-							await fetch("/api/auth/logout", { method: "POST" });
-							nav("/login");
-						}}
-					>
-						{t("odoj.logout")}
-					</Button>
-				</div>
-			</div>
-
-			{group.loading ? (
-				<div className="p-6 text-center text-muted-foreground">{t("odoj.loadingGroup")}</div>
-			) : hasGroup ? (
-				<Dashboard group={hasGroup} onGroupRefresh={loadGroup} />
+		<div className="mx-auto max-w-6xl space-y-6 p-4">
+			{group ? (
+				<AdminDashboard group={group} onGroupRefresh={loadGroup} initDate={initDate} />
 			) : (
 				<GroupSetup onCreated={loadGroup} />
 			)}
@@ -113,7 +113,7 @@ export default function OdojAdmin() {
 	);
 }
 
-// ── Setup group (belum punya) ───────────────────────────────
+// ── Setup group ────────────────────────────────────────────────────
 function GroupSetup({ onCreated }: { onCreated: () => void }) {
 	const { t } = useI18n();
 	const [name, setName] = useState("");
@@ -121,331 +121,292 @@ function GroupSetup({ onCreated }: { onCreated: () => void }) {
 	const [loading, setLoading] = useState(false);
 
 	async function create() {
-		if (!name.trim()) {
-			setError("Nama group wajib");
-			return;
-		}
+		if (!name.trim()) { setError("Nama group wajib"); return; }
 		setLoading(true);
 		try {
 			await api("/api/odoj/groups", { method: "POST", body: JSON.stringify({ name }) });
 			onCreated();
-		} catch (e) {
-			setError((e as Error).message);
-		} finally {
-			setLoading(false);
-		}
+		} catch (e) { setError((e as Error).message); }
+		finally { setLoading(false); }
 	}
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle className="text-lg">{t("odoj.createGroupTitle")}</CardTitle>
-				<CardDescription>{t("odoj.createGroupDesc")}</CardDescription>
-			</CardHeader>
-			<CardContent className="space-y-4">
-				{error && <p className="text-sm text-red-600">{error}</p>}
-				<div className="space-y-2">
-					<Label htmlFor="gname">{t("odoj.groupName")}</Label>
-					<Input id="gname" placeholder={t("odoj.groupNamePlaceholder")} value={name} onChange={(e) => setName(e.target.value)} />
-				</div>
-				<Button onClick={create} disabled={loading}>{loading ? t("odoj.created") : t("odoj.createBtn")}</Button>
-			</CardContent>
-		</Card>
+		<div className="mx-auto max-w-md rounded-2xl border bg-card p-8 text-center">
+			<h1 className="font-serif text-2xl font-bold text-teal dark:text-primary">{t("odoj.createGroupTitle")}</h1>
+			<p className="mt-2 text-sm text-muted-foreground">{t("odoj.createGroupDesc")}</p>
+			{error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+			<input
+				value={name}
+				onChange={(e) => setName(e.target.value)}
+				placeholder={t("odoj.groupNamePlaceholder")}
+				className="mt-4 w-full rounded-lg border bg-transparent px-3 py-2 text-sm"
+				onKeyDown={(e) => e.key === "Enter" && create()}
+			/>
+			<button
+				onClick={create}
+				disabled={loading}
+				className="mt-4 w-full rounded-lg bg-teal px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 dark:bg-primary dark:text-primary-foreground"
+			>
+				{loading ? t("odoj.created") : t("odoj.createBtn")}
+			</button>
+		</div>
 	);
 }
 
-// ── Main dashboard (assign + kelola nama + share) ───────────
-function Dashboard({ group, onGroupRefresh }: { group: NonNullable<Group>; onGroupRefresh: () => void }) {
+// ── Admin dashboard (revamp Figma flow) ─────────────────────────────
+function AdminDashboard({ group, onGroupRefresh, initDate }: { group: Group; onGroupRefresh: () => void; initDate: string }) {
 	const { t } = useI18n();
-	const [searchParams] = useSearchParams();
-	const urlDate = searchParams.get("date") || "";
-	const todayStr2 = ((): string => {
-		if (/^\d{4}-\d{2}-\d{2}$/.test(urlDate)) return urlDate;
-		const d = new Date();
-		return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-	})();
-	const [date, setDate] = useState(todayStr2);
+	const [date, setDate] = useState(initDate);
 	const [participants, setParticipants] = useState<Participant[]>([]);
 	const [assign, setAssign] = useState<Assignment[]>([]);
+	const [selected, setSelected] = useState<string | null>(null);
 	const [newName, setNewName] = useState("");
-	const [loading, setLoading] = useState(true);
+	const [expanded, setExpanded] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
+	const [loading, setLoading] = useState(true);
+	const nav = useNavigate();
 
 	function loadAll() {
 		setLoading(true);
 		Promise.all([
 			api<{ list: Participant[] }>("/api/odoj/participants"),
-			api<{ date: string; list: Assignment[] }>(`/api/odoj/assignments?date=${date}`),
+			api<{ list: Assignment[] }>(`/api/odoj/assignments?date=${date}`),
 		])
-			.then(([p, a]) => {
-				setParticipants(p.list);
-				setAssign(a.list);
-			})
-			.catch((e) => alert((e as Error).message))
+			.then(([p, a]) => { setParticipants(p.list); setAssign(a.list); })
+			.catch(() => {})
 			.finally(() => setLoading(false));
 	}
-
-	useEffect(() => {
-		loadAll();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [date]);
+	useEffect(() => { loadAll(); /* eslint-disable-next-line */ }, [date, group.id]);
 
 	async function addParticipant() {
 		if (!newName.trim()) return;
 		try {
-			const r = await api<{ participant: Participant }>("/api/odoj/participants", {
-				method: "POST",
-				body: JSON.stringify({ name: newName }),
-			});
+			const r = await api<{ participant: Participant }>("/api/odoj/participants", { method: "POST", body: JSON.stringify({ name: newName }) });
 			setParticipants((prev) => [...prev, r.participant]);
 			setNewName("");
-		} catch (e) {
-			alert((e as Error).message);
-		}
+		} catch {}
 	}
-
 	async function removeParticipant(id: string) {
 		try {
 			await api(`/api/odoj/participants/${id}`, { method: "DELETE" });
 			setParticipants((prev) => prev.filter((p) => p.id !== id));
-		} catch (e) {
-			alert((e as Error).message);
-		}
+			if (selected === id) setSelected(null);
+			loadAll();
+		} catch {}
 	}
-
 	async function setAssignment(juz: number, pid: string) {
 		try {
-			await api("/api/odoj/assignments", {
-				method: "PUT",
-				body: JSON.stringify({ date, juz_number: juz, participant_id: pid }),
-			});
+			await api("/api/odoj/assignments", { method: "PUT", body: JSON.stringify({ date, juz_number: juz, participant_id: pid }) });
 			loadAll();
-		} catch (e) {
-			alert((e as Error).message);
-		}
+		} catch {}
 	}
-
-	async function toggleDone(assignId: string, current: string) {
+	async function toggleDone(id: string, current: string) {
 		try {
-			const action = current === "done" ? "undone" : "done";
-			await api(`/api/odoj/assignments/${assignId}/${action}`, { method: "PUT" });
+			await api(`/api/odoj/assignments/${id}/${current === "done" ? "undone" : "done"}`, { method: "PUT" });
 			loadAll();
-		} catch (e) {
-			alert((e as Error).message);
-		}
+		} catch {}
 	}
+	const copyGroupLink = () => {
+		const url = `${window.location.origin}/odoj/view?group=${group.token}&date=${date}`;
+		navigator.clipboard.writeText(url);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
 
-	// map juz -> assignment
-	const assignMap = new Map<number, Assignment>();
-	for (const a of assign) assignMap.set(a.juz_number, a);
+	// aggregate
+	const juzMap = new Map<number, Assignment>();
+	for (const a of assign) juzMap.set(a.juz_number, a);
+	const done = assign.filter((a) => a.status === "done");
+	const doneJuz = Array.from(new Set(done.map((a) => a.juz_number))).length;
+	const totalAssigned = juzMap.size;
+	const pct = Math.round((doneJuz / 30) * 100);
+	const activeReader = participants.find((p) => p.id === selected);
 
-	const doneCount = assign.filter((a) => a.status === "done").length;
-	const linkView = group.token
-		? `${window.location.origin}/odoj/view?group=${group.token}&date=${date}`
-		: "";
+	const legend = [
+		{ cls: "bg-card border border-border", label: "Belum ditetapkan" },
+		{ cls: "bg-secondary border border-border", label: "Ditetapkan" },
+		{ cls: "bg-amber-100 border border-amber-300", label: "Hari ini" },
+		{ cls: "bg-teal dark:bg-primary", label: "Selesai" },
+		{ cls: "bg-teal/20 border border-teal", label: "Juz peserta terpilih" },
+	];
 
 	return (
-		<Toast.Provider swipeDirection="right">
-		<div className="space-y-6">
-			{/* Share link + date */}
-			<Card>
-				<CardContent className="space-y-4 pt-6">
-					<div className="flex flex-wrap items-end gap-3">
-						<div className="space-y-2">
-							<Label>{t("odoj.date")}</Label>
-							<NativeDate current={date} onSelect={setDate} />
+		<>
+			{/* Header / progress */}
+			<div className="rounded-2xl border bg-card p-5">
+				<div className="flex items-center justify-between gap-4">
+					<div className="flex items-center gap-3">
+						<div className="flex size-10 items-center justify-center rounded-xl bg-gold-surface text-teal dark:text-primary">
+							<Moon className="size-5" />
 						</div>
-						<Badge variant="secondary">{doneCount}/{assign.length} {t("odoj.doneLabel")}</Badge>
-					</div>
-					{linkView && (
-						<div className="space-y-2 rounded-lg border bg-muted/30 p-3">
-							<p className="text-sm text-muted-foreground">
-								<strong className="text-foreground">{t("odoj.linkShare")}</strong>{" "}
-								{t("odoj.linkShareDesc")}
-							</p>
-							<div className="flex gap-2">
-								<Input readOnly value={linkView} className="flex-1 font-mono text-xs" />
-								<Button
-									variant="outline"
-									onClick={async () => {
-										await navigator.clipboard.writeText(linkView);
-										setCopied(true);
-									}}
-								>
-									{t("odoj.shareGroupLink")}
-								</Button>
-							</div>
+						<div>
+							<h1 className="font-serif text-xl font-bold text-teal dark:text-primary">One Day One Juz</h1>
+							<p className="text-xs text-muted-foreground">Admin: {group.name}</p>
 						</div>
-					)}
-				</CardContent>
-			</Card>
-
-			{/* Kelola nama */}
-			<Card>
-				<CardHeader>
-					<CardTitle className="text-lg">{t("odoj.manageParticipants")}</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-3">
-					<div className="flex gap-2">
-						<Input placeholder={t("odoj.participantPlaceholder")} value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addParticipant()} />
-						<Button onClick={addParticipant}>{t("odoj.add")}</Button>
 					</div>
-					<div className="flex flex-wrap gap-2">
-						{participants.map((p) => (
-							<Badge key={p.id} variant="secondary" className="gap-2 py-1">
-								{p.name}
-								<button className="text-muted-foreground hover:text-red-500" onClick={() => removeParticipant(p.id)} title="Hapus">
-									×
-								</button>
-							</Badge>
-						))}
-						{participants.length === 0 && <span className="text-sm text-muted-foreground">{t("odoj.noParticipants")}</span>}
-					</div>
-				</CardContent>
-			</Card>
-
-			{/* Assign 30 juz */}
-			<Card>
-				<CardHeader>
-					<CardTitle className="text-lg">{t("odoj.assignTitle")}</CardTitle>
-					<CardDescription>{t("odoj.assignDesc")}</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-3">
-					{loading ? (
-						<div className="p-4 text-center text-muted-foreground">{t("odoj.loading")}</div>
-					) : (
-						<div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
-							{Array.from({ length: 30 }, (_, i) => i + 1).map((juz) => {
-								const a = assignMap.get(juz);
-								return (
-									<div key={juz} className={`rounded-lg border p-2 ${a ? "border-green-300 dark:border-green-700" : "border-red-300 dark:border-red-800"}`}>
-										<div className="mb-1 flex items-center justify-between">
-											<span className="text-sm font-semibold">Juz {juz}</span>
-											{a && (
-												<button
-													className={`text-xs ${a.status === "done" ? "text-green-600" : "text-muted-foreground"}`}
-													onClick={() => toggleDone(a.id, a.status)}
-												>
-													{a.status === "done" ? "✓" : "○"}
-												</button>
-											)}
-										</div>
-										<select
-											className="w-full rounded border bg-transparent text-sm"
-											value={a?.participant_id || ""}
-											onChange={(e) => setAssignment(juz, e.target.value)}
-										>
-											<option value="">{t("odoj.empty")}</option>
-											{participants.map((p) => (
-												<option key={p.id} value={p.id}>{p.name}</option>
-											))}
-										</select>
-									</div>
-								);
-							})}
+					<div className="flex items-center gap-3">
+						<div className="hidden text-right sm:block">
+							<div className="text-sm font-semibold">{doneJuz}/30 {t("odoj.doneLabel")}</div>
+							<div className="text-xs text-muted-foreground">{totalAssigned} {t("odoj.assignTitle").split(" ")[0].toLowerCase()} · {participants.length} peserta</div>
 						</div>
-					)}
-				</CardContent>
-			</Card>
-
-			<Toast.Viewport className="fixed bottom-4 right-4 z-50 flex flex-col gap-2" />
-			<Toast.Root
-				open={copied}
-				onOpenChange={setCopied}
-				className="rounded-lg border bg-background px-4 py-3 shadow-lg"
-			>
-				<Toast.Title className="text-sm font-medium">✓ {t("odoj.copied")}</Toast.Title>
-				<Toast.Description className="text-sm text-muted-foreground">
-					{t("odoj.copiedDesc")}
-				</Toast.Description>
-			</Toast.Root>
-		</div>
-		</Toast.Provider>
-	);
-}
-
-// Datepicker popup sederhana custom-tailwind.
-function NativeDate({ current, onSelect }: { current: string; onSelect: (v: string) => void }) {
-	const [open, setOpen] = useState(false);
-	const [view, setView] = useState(() => {
-		const d = current ? new Date(current) : new Date();
-		return new Date(d.getFullYear(), d.getMonth(), 1);
-	});
-
-	const days = (() => {
-		const yr = view.getFullYear();
-		const mo = view.getMonth();
-		const first = new Date(yr, mo, 1).getDay(); // 0=Sun
-		const dim = new Date(yr, mo + 1, 0).getDate();
-		const cells: (Date | null)[] = [];
-		for (let i = 0; i < first; i++) cells.push(null);
-		for (let d = 1; d <= dim; d++) cells.push(new Date(yr, mo, d));
-		return cells;
-	})();
-
-	function pick(d: Date) {
-		const s = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-		onSelect(s);
-		setOpen(false);
-	}
-
-	const fmt = (d: Date) => d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
-	const monthLabel = view.toLocaleDateString("id-ID", { month: "long", year: "numeric" });
-
-	return (
-		<div className="relative w-44">
-			<button
-				type="button"
-				onClick={() => setOpen((o) => !o)}
-				className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-sm shadow-sm"
-			>
-				<span>{current ? fmt(new Date(current)) : "Pilih tanggal"}</span>
-				<span className="text-muted-foreground">▾</span>
-			</button>
-			{open && (
-				<div className="absolute z-30 mt-1 w-64 rounded-lg border bg-background p-3 shadow-xl">
-					<div className="mb-2 flex items-center justify-between">
-						<button
-							type="button"
-							className="rounded px-2 py-1 text-sm hover:bg-accent"
-							onClick={() => setView(new Date(view.getFullYear(), view.getMonth() - 1, 1))}
-						>
-							‹
-						</button>
-						<span className="text-sm font-medium">{monthLabel}</span>
-						<button
-							type="button"
-							className="rounded px-2 py-1 text-sm hover:bg-accent"
-							onClick={() => setView(new Date(view.getFullYear(), view.getMonth() + 1, 1))}
-						>
-							›
-						</button>
-					</div>
-					<div className="grid grid-cols-7 gap-1 text-center text-xs">
-						{["M", "S", "S", "R", "K", "J", "S"].map((d, i) => (
-							<div key={i} className="py-1 font-medium text-muted-foreground">{d}</div>
-						))}
-						{days.map((d, i) =>
-							d ? (
-								<button
-									key={i}
-									type="button"
-									onClick={() => pick(d)}
-									className={`rounded py-1 hover:bg-accent ${
-										current === `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
-											? "bg-primary text-primary-foreground"
-											: ""
-									}`}
-								>
-									{d.getDate()}
-								</button>
-							) : (
-								<div key={i} />
-							),
-						)}
+						<ProgressRing pct={pct} />
+						<div className="flex gap-2">
+							<Link to="/odoj/history"><button className="rounded-lg border px-3 py-1.5 text-xs font-semibold hover:bg-secondary">{t("odoj.history")}</button></Link>
+							<button onClick={async () => { await fetch("/api/auth/logout", { method: "POST" }); nav("/login"); }} className="rounded-lg border px-3 py-1.5 text-xs font-semibold hover:bg-secondary">{t("odoj.logout")}</button>
+						</div>
 					</div>
 				</div>
-			)}
-		</div>
+			</div>
+
+			{/* Share link banner */}
+			<div className="rounded-2xl border bg-card p-4">
+				<p className="text-sm font-semibold">{t("odoj.linkShare")} <span className="font-normal text-teal dark:text-primary">{t("odoj.linkShareDesc")}</span></p>
+				<div className="mt-3 flex items-center gap-2">
+					<input readOnly value={`${window.location.origin}/odoj/view?group=${group.token}&date=${date}`}
+						className="flex-1 truncate rounded-lg border bg-muted/30 px-3 py-2 font-mono text-xs" onFocus={(e) => e.target.select()} />
+					<button onClick={copyGroupLink} className="flex flex-shrink-0 items-center gap-2 rounded-lg border-2 border-teal px-3 py-2 text-sm font-semibold text-teal transition-colors hover:bg-teal hover:text-white dark:border-primary dark:text-primary dark:hover:bg-primary dark:hover:text-primary-foreground">
+						{copied ? <Check className="size-4" /> : <Share2 className="size-4" />}
+						<span className="hidden sm:inline">{copied ? "Tersalin!" : t("odoj.shareGroupLink")}</span>
+					</button>
+				</div>
+			</div>
+
+			<div className="grid lg:grid-cols-[1fr_320px] gap-6">
+				{/* Left: juz grid */}
+				<div>
+					{activeReader && (
+						<div className="mb-3 flex items-center gap-2 rounded-lg border border-teal/30 bg-teal/10 px-3 py-2 text-sm">
+							<Star className="size-4 text-teal dark:text-primary" />
+							<span>Klik kartu juz untuk tetapkan ke <strong>{activeReader.name}</strong></span>
+							<button onClick={() => setSelected(null)} className="ml-auto text-muted-foreground hover:text-foreground"><X className="size-4" /></button>
+						</div>
+					)}
+					<div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+						{Array.from({ length: 30 }, (_, i) => i + 1).map((n) => {
+							const a = juzMap.get(n);
+							const doneJ = a?.status === "done";
+							const assignedToSelected = a?.participant_id === selected;
+							// tanggal target: Moozhaf pakai date per assign; tampilkan done secara visual
+							return (
+								<button
+									key={n}
+									onClick={() => selected && setAssignment(n, selected ? (a?.participant_id === selected ? "" : selected) : "")}
+									className={[
+										"relative rounded-lg border p-2.5 text-left transition-all",
+										selected ? "cursor-pointer hover:scale-[1.02]" : "cursor-default",
+										doneJ ? "bg-teal border-teal text-teal-foreground dark:bg-primary dark:border-primary dark:text-primary-foreground"
+											: assignedToSelected ? "bg-teal/15 border-teal"
+											: a ? "bg-secondary border-border"
+											: "bg-card border-border",
+									].join(" ")}
+								>
+									<div className="mb-0.5 flex items-start justify-between">
+										<span className={`text-[9px] font-semibold tracking-widest ${doneJ ? "opacity-70" : "text-muted-foreground"}`}>JUZ</span>
+										{doneJ && <Check className="size-3" />}
+									</div>
+									<div className="font-serif text-lg font-bold leading-none">{n}</div>
+									<div className={`mt-0.5 truncate text-[9px] leading-tight ${doneJ ? "opacity-70" : "text-muted-foreground"}`}>{JUZ_NAMES[n]}</div>
+									{a && (
+										<div className="mt-1 flex flex-wrap gap-0.5">
+											<span className={`rounded px-1 py-0.5 text-[8px] font-medium ${doneJ ? "bg-white/20" : "bg-teal/10 text-teal dark:text-primary"}`}>{a.name}</span>
+										</div>
+									)}
+								</button>
+							);
+						})}
+					</div>
+					<p className="mt-2 text-xs text-muted-foreground">Pilih peserta di kanan, lalu klik kartu juz untuk tetapkan.</p>
+				</div>
+
+				{/* Right: settings + participants */}
+				<div className="space-y-4">
+					{/* Date */}
+					<div className="rounded-xl border bg-card p-4">
+						<h2 className="mb-3 flex items-center gap-2 text-sm font-semibold"><Calendar className="size-4 text-muted-foreground" /> {t("odoj.date")}</h2>
+						<input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full rounded-lg border bg-transparent px-3 py-2 text-sm" />
+					</div>
+
+					{/* Add participant */}
+					<div className="rounded-xl border bg-card p-4">
+						<h2 className="mb-3 flex items-center gap-2 text-sm font-semibold"><Users className="size-4 text-muted-foreground" /> {t("odoj.manageParticipants")}</h2>
+						<div className="flex gap-2">
+							<input
+								value={newName} onChange={(e) => setNewName(e.target.value)}
+								placeholder={t("odoj.participantPlaceholder")}
+								onKeyDown={(e) => e.key === "Enter" && addParticipant()}
+								className="flex-1 rounded-lg border bg-transparent px-3 py-2 text-sm"
+							/>
+							<button onClick={addParticipant} className="rounded-lg bg-teal px-3 py-2 text-white disabled:opacity-40 dark:bg-primary" disabled={!newName.trim()}><Plus className="size-4" /></button>
+						</div>
+					</div>
+
+					{/* Participants list */}
+					<div className="overflow-hidden rounded-xl border bg-card">
+						<div className="flex items-center justify-between border-b px-4 py-3">
+							<h2 className="flex items-center gap-2 text-sm font-semibold"><Users className="size-4 text-muted-foreground" /> {t("odoj.manageParticipants")} <span className="text-xs font-normal text-muted-foreground">({participants.length})</span></h2>
+						</div>
+						{participants.length === 0 ? (
+							<div className="px-4 py-8 text-center">
+								<p className="text-sm text-muted-foreground">{t("odoj.noParticipants")}</p>
+							</div>
+						) : (
+							<ul className="divide-y">
+								{participants.map((p) => {
+									const pAssign = assign.filter((a) => a.participant_id === p.id);
+									const doneCount = pAssign.filter((a) => a.status === "done").length;
+									const isSel = selected === p.id;
+									const isExp = expanded === p.id;
+									return (
+										<li key={p.id} className={isSel ? "bg-teal/5" : ""}>
+											<div className="flex items-center gap-2 px-4 py-3">
+												<button onClick={() => setSelected(isSel ? null : p.id)} className="min-w-0 flex-1 text-left">
+													<div className="flex items-center gap-2">
+														<div className={`size-2 flex-shrink-0 rounded-full ${isSel ? "bg-teal dark:bg-primary" : "bg-muted-foreground/30"}`} />
+														<span className="truncate text-sm font-medium">{p.name}</span>
+													</div>
+													<div className="ml-4 text-xs text-muted-foreground">{pAssign.length === 0 ? "Belum ada juz" : `${doneCount}/${pAssign.length} ${t("odoj.doneLabel")}`}</div>
+												</button>
+												<div className="flex flex-shrink-0 items-center gap-1">
+													<button onClick={() => setExpanded(isExp ? null : p.id)} className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><ChevronDown className={`size-4 transition-transform ${isExp ? "rotate-180" : ""}`} /></button>
+													<button onClick={() => removeParticipant(p.id)} className="rounded p-1.5 text-muted-foreground hover:text-red-500"><Trash2 className="size-4" /></button>
+												</div>
+											</div>
+											{isExp && (
+												<div className="px-4 pb-3">
+													<div className="flex flex-wrap gap-1">
+														{pAssign.length === 0 ? <span className="text-xs italic text-muted-foreground">Belum ditetapkan</span>
+															: pAssign.sort((a, b) => a.juz_number - b.juz_number).map((a) => (
+																<button key={a.id} onClick={() => toggleDone(a.id, a.status)} title="Klik toggle selesai"
+																	className={`rounded px-1.5 py-0.5 text-xs font-medium ${a.status === "done" ? "bg-teal text-white dark:bg-primary" : "bg-secondary"}`}>
+																	Juz {a.juz_number}{a.status === "done" ? " ✓" : ""}
+																</button>
+															))}
+													</div>
+												</div>
+											)}
+										</li>
+									);
+								})}
+							</ul>
+						)}
+					</div>
+
+					{/* Legend */}
+					<div className="rounded-xl border bg-card p-4">
+						<p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Petunjuk</p>
+						<div className="space-y-1.5">
+							{legend.map((l) => (
+								<div key={l.label} className="flex items-center gap-2">
+									<div className={`size-4 flex-shrink-0 rounded ${l.cls}`} />
+									<span className="text-xs text-muted-foreground">{l.label}</span>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
+			</div>
+		</>
 	);
 }
+
+function OutlineSVG() { return null; }

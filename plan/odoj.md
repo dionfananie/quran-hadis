@@ -294,10 +294,11 @@ Create `app/routes/odoj.tsx`; update `app/routes.ts`.
 6. Title & admin name editable.
 
 **Penyesuaian ke Moozhaf (tidak copy mentah):**
+- **Color scheme TETAP ikut theme Moozhaf** (`--background`, `--card`, `--border`, `--muted`, `--accent`, `--primary`, `gold`, `teal`, dsb). Jangan pakai warna hardcode dari repo Figma. Yang diambil dari Figma hanya **flow penggunaan & fitur**, bukan warna.
 - Data tersimpan di **D1** (via API `/api/odoj/*`) BUKAN localStorage — integrasikan dgn backend Moozhaf (group, participants, assignments per date).
 - Halaman pakai i18n id/en (seperti halaman lain).
 - Route tetap `/odoj/create` (+ login guard).
-- Komponen Radix/Tailwind Moozhaf, sesuaikan class (`bg-input-background`, `border-border`, dll).
+- Komponen Radix/Tailwind Moozhaf.
 
 **Langkah eksekusi:**
 1. Baca penuh `App.tsx` (termasuk view pembaca/reader view bila ada) — dpt semua fitur.
