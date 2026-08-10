@@ -209,7 +209,10 @@ export default function Juz() {
 									: "border-gold-border/50 hover:border-gold-border hover:bg-accent",
 							)}
 						>
-							<div className="flex min-w-0 flex-1 items-start gap-4">
+							<Link
+								to={`/quran/${a.surah}/${a.inSurah}`}
+								className="flex min-w-0 flex-1 items-start gap-4 rounded-lg focus-visible:outline-2 focus-visible:outline-gold/70"
+							>
 								<span className="mt-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-gold-surface text-xs font-semibold text-teal dark:text-primary">
 									{a.inSurah}
 								</span>
@@ -220,7 +223,7 @@ export default function Juz() {
 									)}
 									<span className="text-[11px] text-muted-foreground">{a.surahName} · ayat {a.inSurah}</span>
 								</div>
-							</div>
+							</Link>
 							<button
 								type="button"
 								onClick={() => toggleAyah(a.key, a.audio)}
