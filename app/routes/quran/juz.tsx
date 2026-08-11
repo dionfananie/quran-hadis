@@ -327,6 +327,38 @@ export default function Juz() {
 					);
 				})}
 			</div>
+
+			{/* Juz navigation */}
+			<div className="flex items-center justify-between gap-4 border-t border-gold-border pt-6">
+				{n > 1 ? (
+					<Link
+						to={`/quran/juz/${n - 1}`}
+						className="flex items-center gap-2 text-sm font-medium text-teal hover:underline"
+					>
+						<ArrowLeft className="size-4" />
+						Juz {n - 1}
+					</Link>
+				) : (
+					<div />
+				)}
+				<Link
+					to="/quran"
+					className="text-xs font-bold uppercase tracking-[0.05em] text-gold hover:underline"
+				>
+					{t("home.surahIndex")}
+				</Link>
+				{n < 30 ? (
+					<Link
+						to={`/quran/juz/${n + 1}`}
+						className="flex items-center gap-2 text-sm font-medium text-teal hover:underline"
+					>
+						Juz {n + 1}
+						<ChevronRight className="size-4" />
+					</Link>
+				) : (
+					<div />
+				)}
+			</div>
 		</div>
 	);
 }
