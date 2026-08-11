@@ -233,6 +233,12 @@ const id = {
 	"odoj.assignDesc": "Pilih peserta utk tiap juz. Kosong = belum di-assign.",
 	"odoj.empty": "— kosong —",
 	"odoj.doneLabel": "selesai",
+	"odoj.myOdoj": "ODOJ Saya",
+	"odoj.lastActive": "Terakhir aktif",
+	"odoj.viewOdoj": "Lihat ODOJ",
+	"odoj.noOdoj": "Belum ada group ODOJ",
+	"odoj.noOdojDesc": "Buat group untuk mulai melacak bacaan harian.",
+	"odoj.lastDate": "Tanggal",
 } as const;
 
 const en: Record<keyof typeof id, string> = {
@@ -458,6 +464,12 @@ const en: Record<keyof typeof id, string> = {
 	"odoj.assignDesc": "Pick a participant for each juz. Empty = not assigned.",
 	"odoj.empty": "— empty —",
 	"odoj.doneLabel": "done",
+	"odoj.myOdoj": "My ODOJ",
+	"odoj.lastActive": "Last active",
+	"odoj.viewOdoj": "Open ODOJ",
+	"odoj.noOdoj": "No ODOJ group yet",
+	"odoj.noOdojDesc": "Create a group to start tracking daily reading.",
+	"odoj.lastDate": "Date",
 };
 
 export type TKey = keyof typeof id;
