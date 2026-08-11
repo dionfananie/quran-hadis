@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BookOpen } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 import type { Route } from "./+types/user-profile";
 
 export function meta({}: Route.MetaArgs) {
@@ -13,8 +15,12 @@ export function meta({}: Route.MetaArgs) {
 
 type User = { id: string; email: string; name?: string | null; avatar_url?: string | null };
 
+type OdojGroup = { id: string; name: string; token: string };
+type OdojHistoryRow = { date: string; done: number; assigned: number };
+
 export default function UserProfile() {
 	const nav = useNavigate();
+	const { t } = useI18n();
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [name, setName] = useState("");
@@ -22,6 +28,13 @@ export default function UserProfile() {
 	const [msg, setMsg] = useState("");
 	const [error, setError] = useState("");
 	const fileRef = useRef<HTMLInputElement>(null);
+
+	// Data ODOJ: group user + tanggal terakhir aktif (terbaru dari riwayat).
+	const [odojGroup, setOdojGroup] = useState<OdojGroup | null>(null);
+	const [odojLastDate, setOdojLastDate] = useState<string | null>(null);
+	const [odojDone, setOdojDone] = useState(0);
+	const [odojAssigned, setOdojAssigned] = useState(0);
+	const [odojLoading, setOdojLoading] = useState(false);
 
 	useEffect(() => {
 		fetch("/api/auth/me")
@@ -34,6 +47,40 @@ export default function UserProfile() {
 			})
 			.catch(() => nav("/login", { replace: true, state: { from: "/user-profile" } }));
 	}, [nav]);
+
+	// Ambil group ODOJ + tanggal terakhir aktif (terbaru dari riwayat).
+	useEffect(() => {
+		let cancelled = false;
+		(async () => {
+			setOdojLoading(true);
+			try {
+				const gres = await fetch("/api/odoj/groups/me");
+				if (!gres.ok) return;
+				const gdata = (await gres.json()) as { group: OdojGroup | null };
+				if (cancelled) return;
+				if (!gdata.group) {
+					setOdojLoading(false);
+					return;
+				}
+				setOdojGroup(gdata.group);
+				const hres = await fetch("/api/odoj/history");
+				if (hres.ok) {
+					const hdata = (await hres.json()) as { list: OdojHistoryRow[] };
+					if (!cancelled && hdata.list && hdata.list.length > 0) {
+						const last = hdata.list[0];
+						setOdojLastDate(last.date);
+						setOdojDone(Number(last.done));
+						setOdojAssigned(Number(last.assigned));
+					}
+				}
+			} catch {
+				// silent — blok ODOJ opsional
+			} finally {
+				if (!cancelled) setOdojLoading(false);
+			}
+		})();
+		return () => { cancelled = true; };
+	}, []);
 
 	// Baca file gambar → kompres → data URL kecil.
 	function readAvatar(file: File) {
@@ -156,6 +203,47 @@ export default function UserProfile() {
 								{saving ? "Menyimpan…" : "Simpan Perubahan"}
 							</Button>
 						</>
+					)}
+				</CardContent>
+			</Card>
+
+			{/* Card ODOJ — entry point ke halaman ODOJ view */}
+			<Card className="mt-4">
+				<CardHeader>
+					<CardTitle className="flex items-center gap-2 text-lg">
+						<BookOpen className="size-5 text-teal" />
+						{t("odoj.myOdoj")}
+					</CardTitle>
+					<CardDescription>{t("odoj.lastActive")}</CardDescription>
+				</CardHeader>
+				<CardContent>
+					{odojLoading ? (
+						<p className="py-4 text-center text-sm text-muted-foreground">{t("odoj.loadingGroup")}</p>
+					) : odojGroup && odojLastDate ? (
+						<div className="space-y-4">
+							<div className="rounded-xl border border-gold-border bg-accent/40 p-4">
+								<p className="text-sm font-medium text-foreground">{odojGroup.name}</p>
+								<div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
+									<span>{t("odoj.lastDate")}: <span className="font-medium text-foreground">{odojLastDate}</span></span>
+									<span className="font-medium text-teal">{odojDone}/{odojAssigned} {t("odoj.doneLabel")}</span>
+								</div>
+							</div>
+							<Button
+								className="w-full"
+								onClick={() =>
+									nav(`/odoj/view?group=${encodeURIComponent(odojGroup.token)}&date=${encodeURIComponent(odojLastDate)}`)
+								}
+							>
+								{t("odoj.viewOdoj")}
+							</Button>
+						</div>
+					) : (
+						<div className="space-y-4">
+							<p className="text-sm text-muted-foreground">{t("odoj.noOdojDesc")}</p>
+							<Button variant="outline" className="w-full" onClick={() => nav("/odoj")}>
+								{t("odoj.noOdoj")}
+							</Button>
+						</div>
 					)}
 				</CardContent>
 			</Card>
