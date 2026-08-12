@@ -6,6 +6,7 @@ import { SearchDialog } from "@/components/search-dialog";
 import { ContinueReadingCard, LastReadGrid } from "@/components/home/last-read-card";
 import { DailyVerseCard } from "@/components/home/daily-verse-card";
 import { PrayerMarquee } from "@/components/home/prayer-marquee";
+import { JuzQuickRead, JuzAllSection } from "@/components/home/juz-sections";
 import { getDailyVerse } from "@/lib/data/quran";
 import { useI18n } from "@/lib/i18n";
 import { SITE_URL } from "@/lib/seo";
@@ -131,6 +132,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
 			<PrayerMarquee />
 
+			{/* Quick Read — grid juz 1-3 */}
+			<JuzQuickRead />
+
 			<SurahIndex
 				limit={3}
 				afterLimit={6}
@@ -140,6 +144,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 					</div>
 				}
 			/>
+
+			{/* All Juz — grid juz 1-30 */}
+			<JuzAllSection />
 
 			<SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
 		</div>
