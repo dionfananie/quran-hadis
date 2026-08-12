@@ -94,9 +94,7 @@ export default function OdojView() {
 			<header className="rounded-2xl bg-primary px-5 py-4 text-primary-foreground flex items-center justify-between shadow-sm">
 				<div className="flex items-center gap-3">
 					<BookOpen className="size-5 opacity-90" />
-					<span className="text-sm font-medium tracking-wide uppercase opacity-90">
-						One Day One Juz
-					</span>
+					<span className="font-serif text-lg font-bold">One Day One Juz</span>
 				</div>
 				<div className="text-xs font-mono opacity-80">{data.date}</div>
 			</header>
@@ -106,7 +104,7 @@ export default function OdojView() {
 				<section className="rounded-2xl border bg-card shadow-sm overflow-hidden">
 					<div className="border-b flex items-center gap-2 bg-primary/5 px-5 py-3">
 						<Users className="size-4 text-primary" />
-						<h2 className="text-xs font-semibold text-primary uppercase tracking-widest">
+						<h2 className="text-sm font-semibold text-primary">
 							Info Group
 						</h2>
 					</div>
@@ -116,7 +114,7 @@ export default function OdojView() {
 								<Users className="size-4 text-primary" />
 							</div>
 							<div className="min-w-0">
-								<p className="mb-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+								<p className="mb-0.5 text-xs font-medium text-muted-foreground">
 									Nama Group
 								</p>
 								<p className="text-sm font-semibold leading-snug">{data.group_name}</p>
@@ -127,7 +125,7 @@ export default function OdojView() {
 								<CalendarDays className="size-4 text-primary" />
 							</div>
 							<div className="min-w-0">
-								<p className="mb-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+								<p className="mb-0.5 text-xs font-medium text-muted-foreground">
 									Tanggal
 								</p>
 								<p className="text-sm font-semibold leading-snug">{data.date}</p>
@@ -138,7 +136,7 @@ export default function OdojView() {
 								<User className="size-4 text-primary" />
 							</div>
 							<div className="min-w-0">
-								<p className="mb-0.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+								<p className="mb-0.5 text-xs font-medium text-muted-foreground">
 									{t("odoj.viewAdmin")}
 								</p>
 								<p className="text-sm font-semibold leading-snug">
@@ -153,7 +151,7 @@ export default function OdojView() {
 				<section className="rounded-2xl border bg-card shadow-sm overflow-hidden">
 					<div className="border-b flex items-center gap-2 bg-primary/5 px-5 py-3">
 						<Award className="size-4 text-primary" />
-						<h2 className="text-xs font-semibold text-primary uppercase tracking-widest">
+						<h2 className="text-sm font-semibold text-primary">
 							Rekap Kemajuan
 						</h2>
 					</div>
@@ -162,19 +160,19 @@ export default function OdojView() {
 					<div className="grid grid-cols-3 divide-x divide-border border-b">
 						<div className="px-5 py-5 text-center">
 							<p className="font-serif text-3xl font-bold text-primary">{data.list.length}</p>
-							<p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
+							<p className="mt-1 text-xs text-muted-foreground">
 								Juz ditugaskan
 							</p>
 						</div>
 						<div className="px-5 py-5 text-center">
 							<p className="font-serif text-3xl font-bold text-green">{done}</p>
-							<p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
+							<p className="mt-1 text-xs text-muted-foreground">
 								Selesai dibaca
 							</p>
 						</div>
 						<div className="px-5 py-5 text-center">
 							<p className="font-serif text-3xl font-bold text-accent">{pending}</p>
-							<p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
+							<p className="mt-1 text-xs text-muted-foreground">
 								Belum selesai
 							</p>
 						</div>
@@ -185,7 +183,7 @@ export default function OdojView() {
 						<div className="mb-2 flex items-center justify-between">
 							<div className="flex items-center gap-2">
 								<TrendingUp className="size-3.5 text-primary" />
-								<span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+								<span className="text-xs font-medium text-muted-foreground">
 									Progres Keseluruhan
 								</span>
 							</div>
@@ -195,7 +193,7 @@ export default function OdojView() {
 
 						{/* Juz completion map */}
 						<div className="mt-5">
-							<p className="mb-3 text-xs uppercase tracking-wide text-muted-foreground">
+							<p className="mb-3 text-xs text-muted-foreground">
 								Peta Juz 1–30
 							</p>
 							<div className="grid grid-cols-10 gap-1.5">
@@ -246,7 +244,7 @@ export default function OdojView() {
 					<div className="border-b flex items-center justify-between gap-2 bg-primary/5 px-5 py-3">
 						<div className="flex items-center gap-2">
 							<BookOpen className="size-4 text-primary" />
-							<h2 className="text-xs font-semibold text-primary uppercase tracking-widest">
+							<h2 className="text-sm font-semibold text-primary">
 								Daftar Penugasan
 							</h2>
 						</div>
