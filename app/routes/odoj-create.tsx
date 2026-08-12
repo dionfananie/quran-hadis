@@ -234,17 +234,17 @@ function AdminDashboard({ group, onGroupRefresh, initDate }: { group: Group; onG
 		<>
 			{/* Header / progress */}
 			<div className="rounded-2xl border bg-card p-5">
-				<div className="flex items-center justify-between gap-4">
-					<div className="flex items-center gap-3">
-						<div className="flex size-10 items-center justify-center rounded-xl bg-gold-surface text-teal dark:text-primary">
-							<Moon className="size-5" />
+				<div className="flex flex-wrap items-center justify-between gap-4">
+					<div className="flex min-w-0 items-center gap-3">
+						<div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-gold-surface text-teal dark:text-primary">
+							<Moon className="size-6" />
 						</div>
-						<div>
-							<h1 className="font-serif text-xl font-bold text-teal dark:text-primary">One Day One Juz</h1>
-							<p className="text-xs text-muted-foreground">Admin: {group.name}</p>
+						<div className="min-w-0">
+							<h1 className="truncate font-serif text-xl font-bold text-teal dark:text-primary">One Day One Juz</h1>
+							<p className="truncate text-xs text-muted-foreground">Admin: {group.name}</p>
 						</div>
 					</div>
-					<div className="flex items-center gap-3">
+					<div className="flex flex-wrap items-center justify-end gap-3">
 						<div className="hidden text-right sm:block">
 							<div className="text-sm font-semibold">{doneJuz}/30 {t("odoj.doneLabel")}</div>
 							<div className="text-xs text-muted-foreground">{totalAssigned} {t("odoj.assignTitle").split(" ")[0].toLowerCase()} · {participants.length} peserta</div>
@@ -256,17 +256,22 @@ function AdminDashboard({ group, onGroupRefresh, initDate }: { group: Group; onG
 						</div>
 					</div>
 				</div>
+				{/* Progress summary — tampil di mobile (hidden di sm+) */}
+				<div className="mt-3 flex items-center justify-between sm:hidden">
+					<span className="text-sm text-muted-foreground">{totalAssigned} {t("odoj.assignTitle").split(" ")[0].toLowerCase()} · {participants.length} peserta</span>
+					<span className="text-sm font-semibold text-teal dark:text-primary">{doneJuz}/30 {t("odoj.doneLabel")}</span>
+				</div>
 			</div>
 
 			{/* Share link banner */}
 			<div className="rounded-2xl border bg-card p-4">
 				<p className="text-sm font-semibold">{t("odoj.linkShare")} <span className="font-normal text-teal dark:text-primary">{t("odoj.linkShareDesc")}</span></p>
-				<div className="mt-3 flex items-center gap-2">
+				<div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
 					<input readOnly value={`${window.location.origin}/odoj/view?group=${group.token}&date=${date}`}
-						className="flex-1 truncate rounded-lg border bg-muted/30 px-3 py-2 font-mono text-xs" onFocus={(e) => e.target.select()} />
-					<button onClick={copyGroupLink} className="flex flex-shrink-0 items-center gap-2 rounded-lg border-2 border-teal px-3 py-2 text-sm font-semibold text-teal transition-colors hover:bg-teal hover:text-white dark:border-primary dark:text-primary dark:hover:bg-primary dark:hover:text-primary-foreground">
+						className="w-full min-w-0 flex-1 truncate rounded-lg border bg-muted/30 px-3 py-2 font-mono text-xs" onFocus={(e) => e.target.select()} />
+					<button onClick={copyGroupLink} className="flex w-full shrink-0 items-center justify-center gap-2 rounded-lg border-2 border-teal px-3 py-2 text-sm font-semibold text-teal transition-colors hover:bg-teal hover:text-white sm:w-auto dark:border-primary dark:text-primary dark:hover:bg-primary dark:hover:text-primary-foreground">
 						{copied ? <Check className="size-4" /> : <Share2 className="size-4" />}
-						<span className="hidden sm:inline">{copied ? "Tersalin!" : t("odoj.shareGroupLink")}</span>
+						<span>{copied ? "Tersalin!" : t("odoj.shareGroupLink")}</span>
 					</button>
 				</div>
 			</div>
