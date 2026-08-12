@@ -148,6 +148,28 @@ export default function Juz() {
 		setCurrent(key);
 	};
 
+	// Divider/header saat masuk surah baru di dalam halaman juz.
+	function SurahDivider({ surah, name }: { surah: number; name: string }) {
+		const metaS = getSurahMeta(surah);
+		return (
+			<div className="mb-3 flex items-center gap-3">
+				<div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
+				<div className="flex items-center gap-2 rounded-full border border-gold-border bg-gold-surface px-4 py-1.5">
+					<span className="size-6 rounded-full bg-teal text-center font-serif text-xs font-semibold leading-6 text-white dark:bg-primary">
+						{surah}
+					</span>
+					<span className="font-serif text-sm font-semibold text-teal dark:text-primary">{name}</span>
+					{metaS?.numberOfAyahs && (
+						<span className="hidden text-xs text-muted-foreground sm:inline">
+							· {metaS.numberOfAyahs} ayat
+						</span>
+					)}
+				</div>
+				<div className="h-px flex-1 bg-gradient-to-r from-gold to-transparent" />
+			</div>
+		);
+	}
+
 	if (!meta) return <div className="p-10 text-center text-muted-foreground">Juz tidak ditemukan.</div>;
 	if (error) return <div className="p-10 text-center text-muted-foreground">Gagal memuat.</div>;
 	if (!ayahs) return <div className="p-10 text-center text-muted-foreground">{t("odoj.loading")}</div>;
@@ -271,23 +293,25 @@ export default function Juz() {
 
 			{/* Ayahs */}
 			<div className="space-y-3">
-				{ayahs.map((a) => {
+				{ayahs.map((a, idx) => {
 					const isPlaying = current === a.key;
+					const surahChanged = idx === 0 || a.surah !== ayahs[idx - 1].surah;
 					const ayahTajwid =
 						showTajwid && tajwidMap[a.surah]
 							? tajwidMap[a.surah][a.inSurah - 1]
 							: undefined;
 					return (
-						<div
-							key={a.key}
-							id={`${a.surah}:${a.inSurah}`}
-							className={cn(
-								"flex items-start gap-3 rounded-xl border bg-card p-5 transition-colors",
-								isPlaying
-									? "border-gold bg-gold-surface/60"
-									: "border-gold-border/50 hover:border-gold-border hover:bg-accent",
-							)}
-						>
+						<div key={a.key}>
+							{surahChanged && <SurahDivider surah={a.surah} name={a.surahName} />}
+							<div
+								id={`${a.surah}:${a.inSurah}`}
+								className={cn(
+									"flex items-start gap-3 rounded-xl border bg-card p-5 transition-colors",
+									isPlaying
+										? "border-gold bg-gold-surface/60"
+										: "border-gold-border/50 hover:border-gold-border hover:bg-accent",
+								)}
+							>
 							<Link
 								to={`/quran/${a.surah}/${a.inSurah}`}
 								className="flex min-w-0 flex-1 items-start gap-4 rounded-lg focus-visible:outline-2 focus-visible:outline-gold/70"
@@ -323,6 +347,7 @@ export default function Juz() {
 							>
 								{isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
 							</button>
+							</div>
 						</div>
 					);
 				})}
