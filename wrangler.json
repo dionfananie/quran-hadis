@@ -10,7 +10,7 @@
 	"upload_source_maps": true,
 	"vars": {
 		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare",
-		"HERMES_URL": "https://hermes.oppia.world/webhooks/cf-deploy"
+		"HERMES_URL": "https://webhook.oppia.world/webhooks/cf-deploy"
 	},
 	"d1_databases": [
 		{
