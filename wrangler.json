@@ -9,7 +9,8 @@
 	},
 	"upload_source_maps": true,
 	"vars": {
-		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare"
+		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare",
+		"HERMES_URL": "https://hermes.oppia.world/webhooks/cf-deploy"
 	},
 	"d1_databases": [
 		{
@@ -18,5 +19,23 @@
 			"database_id": "3dd3284f-2e31-4f59-9d02-fe1575723139",
 			"migrations_dir": "migrations"
 		}
-	]
+	],
+	"queues": {
+		"producers": [
+		{
+			"binding": "DEPLOY_QUEUE",
+			"queue": "deploy-notifier"
+		}
+		],
+		"consumers": [
+		{
+			"queue": "deploy-notifier",
+			"max_batch_size": 10,
+			"max_batch_timeout": 5,
+			"max_retries": 3
+		}
+		]
+	
+}
+
 }
