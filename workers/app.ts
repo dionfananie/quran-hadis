@@ -10,10 +10,39 @@ declare module "react-router" {
 	}
 }
 
+// HERMES_SIGNATURE is a Cloudflare SECRET (set via `wrangler secret put`), so it is
+// NOT declared in wrangler.json and not generated into worker-configuration.d.ts.
+// It exists at runtime on env — declare it into the global Env for the typechecker.
+declare global {
+	interface Env {
+		HERMES_SIGNATURE: string;
+	}
+}
+
 const requestHandler = createRequestHandler(
 	() => import("virtual:react-router/server-build"),
 	import.meta.env.MODE,
 );
+
+// Sign a webhook body with Hermes' generic HMAC-SHA256 V2 contract:
+//   signed_content = "<X-Webhook-Timestamp>.<raw_body>"   (timestamp = unix SECONDS)
+//   X-Webhook-Signature-V2 = lowercase hex HMAC-SHA256(signed_content, secret)
+// Never send the raw secret as the signature header.
+async function hmacHexV2(body: string, timestampSeconds: string, secret: string): Promise<string> {
+	const key = await crypto.subtle.importKey(
+		"raw",
+		new TextEncoder().encode(secret),
+		{ name: "HMAC", hash: "SHA-256" },
+		false,
+		["sign"],
+	);
+	const sig = await crypto.subtle.sign(
+		"HMAC",
+		key,
+		new TextEncoder().encode(`${timestampSeconds}.${body}`),
+	);
+	return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 export default {
 	async fetch(request, env, ctx) {
@@ -35,14 +64,20 @@ export default {
 		// Consumer: proses pesan dari queue
 		for (const message of batch.messages) {
 			console.log("Memproses pesan:", JSON.stringify(message.body));
+			// Sign & send the EXACT same body bytes (no re-serialization between
+			// computing the HMAC and sending, or whitespace/key-order drift breaks it).
+			const body = JSON.stringify(message.body);
+			// message.timestamp is already unix SECONDS (Cloudflare queue).
+			const timestampSeconds = String(message.timestamp);
+			const signature = await hmacHexV2(body, timestampSeconds, env.HERMES_SIGNATURE);
 			await fetch(env.HERMES_URL, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					"X-Webhook-Signature-V2": env.HERMES_SIGNATURE,
-					"X-Webhook-Timestamp": String(message.timestamp),
+					"X-Webhook-Signature-V2": signature,
+					"X-Webhook-Timestamp": timestampSeconds,
 				},
-				body: JSON.stringify(message.body),
+				body,
 			});
 			message.ack();
 		}
