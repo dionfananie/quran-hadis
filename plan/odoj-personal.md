@@ -2,7 +2,7 @@
 
 > Plan manajemen fitur. Di-eksekusi **manual** oleh Edo. Document dikelola di repo (`plan/odoj-personal.md`) supaya sinkron dengan codebase.
 >
-> **Status desain:** Paling ringkas + non-destruktif. **TIDAK ada route/halaman baru.** Hanya tambah **1 tombol "ODOJ Saya" di landing `/odoj`** yang mengarah ke **`/odoj/view` existing** (yang sudah menampilkan daftar juz + tanggal + status). Reuse penuh skema & API ODOJ existing; ODOJ multi-group tetap utuh.
+> **Status desain:** ✅ **DONE** (tombol "ODOJ Saya" diimplementasikan 2026-08-14 di landing `/odoj` + card entry di `/user-profile`). TIDAK ada route/halaman baru — reuse view existing. Paling ringkas + non-destruktif. **TIDAK ada route/halaman baru.** Hanya tambah tombol **"ODOJ Saya"** di landing `/odoj` yang mengarah ke **`/odoj/view` existing** (yang sudah menampilkan daftar juz + tanggal + status). Reuse penuh skema & API ODOJ existing; ODOJ multi-group tetap utuh.
 
 ---
 

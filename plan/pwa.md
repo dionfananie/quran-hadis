@@ -2,7 +2,7 @@
 
 > Plan fitur **mengubah Moozhaf menjadi PWA**: installable, offline-capable, push notifikasi (opsional), ikon & manifest.
 
-> **Status:** PLAN (belum eksekusi). Di-eksekusi manual oleh Edo via agent. Document di `plan/pwa.md`.
+> **Status:** ✅ **DONE** (ditandai 2026-08-14). PWA sudah diimplementasikan: manifest, service worker, icon, CTA install. Di-eksekusi via `plan/pwa.md` oleh agent.
 
 **Goal:** User bisa **install Moozhaf ke home screen** (Android/iOS/desktop), membuka cepat, dan tetap bisa membaca konten **offline** (Qur'an, hadits) setelah ter-cache. Dukungan dasar ekosistem PWA: `manifest.webmanifest` + service worker + ikon.
 
