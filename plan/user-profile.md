@@ -2,9 +2,11 @@
 
 > Plan fitur **halaman User Profile** di Moozhaf (`quran-hadis`). Di-eksekusi **manual** oleh Edo. Document dikelola di repo biar sinkron dengan codebase.
 
+> ✅ **STATUS: DONE** (ditandai 2026-08-14). Semua fitur sudah diimplementasikan.
+
 **Goal:** Menambah **menu user (avatar) di kanan atas header**, yang mengarah ke **halaman `/user-profile`** untuk melihat & mengubah **foto** & **nama** user yang login.
 
-**Status:** PLAN (belum eksekusi).
+**Status:** ✅ DONE (fitur sudah jalan; plan ini dulunya bertuliskan "belum eksekusi" namun sudah usang).
 
 ---
 
