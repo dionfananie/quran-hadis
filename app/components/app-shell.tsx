@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { BottomNav } from "./bottom-nav";
+import { InstallAppBanner } from "./install-app-banner";
 import { MobileTopBar } from "./mobile-top-bar";
 import { TopNav } from "./top-nav";
 import { useI18n } from "@/lib/i18n";
@@ -29,6 +30,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 				{children}
 			</main>
 			<Footer />
+			<InstallAppBanner />
 			<BottomNav />
 		</div>
 	);
