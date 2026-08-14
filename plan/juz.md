@@ -3,6 +3,8 @@
 > Plan & dokumentasi fitur **halaman baca per-juz** di Moozhaf (`quran-hadis`). Menggantikan konsep lama di mana ODOJ mengarahkan "Baca Juz Ini" ke `/quran/<n>` (yang sebenarnya halaman surat — salah).
 > Di-eksekusi manual. Document di `plan/juz.md`.
 
+> ✅ **STATUS: DONE** (ditandai 2026-08-14). Fitur utama halaman juz sudah diimplementasikan & sesuai halaman surah. Tiga fitur minor dari rencana masih opsional/belum (font-size, bismillah, prev/next) — lihat catatan bawah.
+
 **Goal:** Halaman `/quran/juz/:number` untuk membaca isi **satu juz** (30 juz), dengan **desain & fitur PERSIS sama seperti halaman surah** (`/quran/:number`). Bedanya hanya konten: 1 juz berisi **beberapa surat** (bukan 1 surat).
 
 **Route:** `quran/juz/:number` → `app/routes/quran/juz.tsx`.
@@ -62,33 +64,20 @@
   - Beban fetch kecil (1-3 surat, terkecuali juz 30 = 37 surat) & lazy-load saat toggle ON.
 - **Penyesuaian:** helper `getSurahTajwid` saat ini utk satu surat → tak perlu diubah; cukup panggil berulang di juz.
 
-## 🔍 Lanjutan
+## ✅ Lanjutan — SUDAH DONE
+Sudah dikerjakan:
+- **Route → `/quran/juz/:number`** — route dipindah, `odoj-view.tsx` link sudah `/quran/juz/<n>`.
+- **Fitur utama persis halaman surah** sudah ada di `juz.tsx`: breadcrumb, toolbar display (Arab saja / Arab+Terjemahan = `showTranslation`), **Tajwid toggle + Legend** (`showTajwid`, `showLegend`), audio per ayat, tombol **"Selesai Dibaca"** + `odoj_token`.
+> ⏳ **Masih opsional/belum** (dari rencana, tidak memblokir): setting **font-size**, **Bismillah** di awal surat dalam juz, **Prev/Next** antar juz.
 
-### A. Route → `/quran/juz/:number`
-- Ubah `app/routes.ts`: `route("juz/:number", ...)` → `route("quran/juz/:number", ...)`.
-- Update `odoj-view.tsx` link → `/quran/juz/<n>`.
-- (file yg sama `app/routes/quran/juz.tsx`)
-
-### B. Design & fitur = persis halaman surah (`/quran/:number`)
-Samakan `app/routes/quran/juz.tsx` dengan fitur `app/routes/quran/surah.tsx`:
-- **Breadcrumb** (Moozhaf → Quran → Juz N)
-- **Header juz**: badge romawi/"Juz N", nama, keterangan rentang surat & jumlah ayat, tombol **play audio seluruh juz** (audio per surat? atau urut), tombol **"Selesai Dibaca"** (OD]). 
-- **Bismillah** (bila relevan / di awal tiap surat dalam juz).
-- **Description** (deskripsi juz bila ada).
-- **Display toolbar**: toggle **Arab sajā / Arab + Terjemahan** (`showTranslation`), **Tajwid toggle**, **font-size** settings — persis surah.
-- **Rendering ayat**: layout sama (arab, terjemahan, nomor/sumber), pakai komponen & styling yang sama.
-- **Audio per ayat** (bila surah punya playTag per ayah).
-- **Prev/Next** (juz sebelumnya / berikutnya).
-
-> Implementasi: salin struktur & state dari `surah.tsx`, tapi data sumber = kumpulan ayat dari beberapa surat (flatten dari `getSurah` per surat dlm rentang juz). Header/toolbar/perpindahan disesuaikan ke konteks juz.
 
 ---
 
 ## Daftar file
 - `app/data/juz.json` ✅
-- `app/routes/quran/juz.tsx` 🟡 (versi dasar sdh; perlu redesign = surah)
-- `app/routes.ts` 🟡 (ubah route → `quran/juz/:number`)
-- `app/routes/odoj-view.tsx` 🟡 (link → `/quran/juz/<n>`)
+- `app/routes/quran/juz.tsx` ✅ (fitur utama seperti surah; font-size/bismillah/prev-next opsional belum)
+- `app/routes.ts` ✅ (route `quran/juz/:number`)
+- `app/routes/odoj-view.tsx` ✅ (link `/quran/juz/<n>`)
 - `app/lib/i18n.tsx` (label juz, jika perlu)
 
 ## Risiko / catatan
