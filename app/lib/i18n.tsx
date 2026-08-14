@@ -248,6 +248,28 @@ const id = {
 	"odoj.noOdoj": "Belum ada group ODOJ",
 	"odoj.noOdojDesc": "Buat group untuk mulai melacak bacaan harian.",
 	"odoj.lastDate": "Tanggal",
+
+	// Murojaah & Hafalan (perorangan)
+	"murajaah.title": "Murojaah & Hafalan",
+	"murajaah.tagline": "Pantau murajaah harian dan progress hafalan Anda.",
+	"murajaah.totalDays": "Total hari murajaah",
+	"murajaah.todayDone": "Sudah di-murajaah hari ini",
+	"murajaah.progressJuz": "Progress hafalan (juz)",
+	"murajaah.progressSurah": "Progress hafalan (surah)",
+	"murajaah.openTracker": "Buka Tracker",
+	"murajaah.trackTitle": "Tracker Hafalan",
+	"murajaah.trackDesc": "Centang juz atau surah yang sudah Anda hafal. Mode bisa diganti.",
+	"murajaah.modeJuz": "Per Juz",
+	"murajaah.modeSurah": "Per Surah",
+	"murajaah.done": "selesai",
+	"murajaah.notDone": "belum",
+	"murajaah.noData": "Belum ada data. Centang juz/surah dari tracker atau halaman bacaan.",
+	"murajaah.today": "Hari ini",
+	"murajaah.profileEntry": "Murojaah & Hafalan",
+	"murajaah.profileDesc": "Lihat riwayat & checklist hafalan Anda",
+	"murajaah.memorize": "Tandai hafal",
+	"murajaah.memorized": "Sudah dihafal",
+	"murajaah.memorizeSave": "Menyimpan…",
 } as const;
 
 const en: Record<keyof typeof id, string> = {
@@ -488,6 +510,28 @@ const en: Record<keyof typeof id, string> = {
 	"odoj.noOdoj": "No ODOJ group yet",
 	"odoj.noOdojDesc": "Create a group to start tracking daily reading.",
 	"odoj.lastDate": "Date",
+
+	// Murojaah & Hafalan (perorangan)
+	"murajaah.title": "Murajaah & Memorization",
+	"murajaah.tagline": "Track your daily murajaah and memorization progress.",
+	"murajaah.totalDays": "Total murajaah days",
+	"murajaah.todayDone": "Murajaah done today",
+	"murajaah.progressJuz": "Memorization progress (juz)",
+	"murajaah.progressSurah": "Memorization progress (surah)",
+	"murajaah.openTracker": "Open Tracker",
+	"murajaah.trackTitle": "Memorization Tracker",
+	"murajaah.trackDesc": "Check off juz or surah you've memorized. You can switch modes.",
+	"murajaah.modeJuz": "By Juz",
+	"murajaah.modeSurah": "By Surah",
+	"murajaah.done": "done",
+	"murajaah.notDone": "not done",
+	"murajaah.noData": "No data yet. Check juz/surah from the tracker or reading pages.",
+	"murajaah.today": "Today",
+	"murajaah.profileEntry": "Murajaah & Memorization",
+	"murajaah.profileDesc": "View your memorization checklist & history",
+	"murajaah.memorize": "Mark memorized",
+	"murajaah.memorized": "Memorized",
+	"murajaah.memorizeSave": "Saving…",
 };
 
 export type TKey = keyof typeof id;

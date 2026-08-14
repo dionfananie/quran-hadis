@@ -13,6 +13,7 @@ import { useI18n, type TKey } from "@/lib/i18n";
 import { useShowTajwid, useShowTranslation } from "@/lib/hooks";
 import { TAJWEED_RULES, parseTajweed } from "@/lib/tajweed";
 import { SITE_URL } from "@/lib/seo";
+import { MemorizeButton } from "@/components/memorize-button";
 import { cn } from "@/lib/utils";
 
 const LEGEND_GROUPS: { titleKey: TKey; match: (id: string) => boolean }[] = [
@@ -252,6 +253,7 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 								</button>
 							)
 						)}
+						<MemorizeButton kind="surah" refNumber={surah.number} />
 					</div>
 				</div>
 			</div>

@@ -15,6 +15,8 @@ export default [
 	route("prayer", "routes/prayer.tsx"),
 	route("more", "routes/more.tsx"),
 	route("settings", "routes/settings.tsx"),
+	route("murajaah", "routes/murajaah.tsx"),
+	route("murajaah/tracker", "routes/murajaah/tracker.tsx"),
 	route("login", "routes/login.tsx"),
 	route("register", "routes/register.tsx"),
 	route("user-profile", "routes/user-profile.tsx"),

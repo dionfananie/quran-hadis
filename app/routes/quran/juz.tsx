@@ -7,6 +7,7 @@ import { useI18n, type TKey } from "@/lib/i18n";
 import { useShowTranslation, useShowTajwid } from "@/lib/hooks";
 import { TAJWEED_RULES, parseTajweed } from "@/lib/tajweed";
 import { cn } from "@/lib/utils";
+import { MemorizeButton } from "@/components/memorize-button";
 import juzData from "@/data/juz.json";
 
 export function meta({ params }: Route.MetaArgs) {
@@ -210,7 +211,10 @@ export default function Juz() {
 						✓ Alhamdulillah, tercatat
 					</p>
 				)}
-			</div>
+				<div className="mt-4 flex justify-center">
+					<MemorizeButton kind="juz" refNumber={n} />
+				</div>
+				</div>
 
 			{/* Display toolbar */}
 			<div className="rounded-xl border border-gold-border bg-card p-3">

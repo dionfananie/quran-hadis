@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BookOpen } from "lucide-react";
+import { BookOpen, BookOpenCheck } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import type { Route } from "./+types/user-profile";
 
@@ -245,6 +245,22 @@ export default function UserProfile() {
 							</Button>
 						</div>
 					)}
+				</CardContent>
+			</Card>
+
+			{/* Card Murajaah & Hafalan — entry point perorangan */}
+			<Card className="mt-4">
+				<CardHeader>
+					<CardTitle className="flex items-center gap-2 text-lg">
+						<BookOpenCheck className="size-5 text-teal" />
+						{t("murajaah.profileEntry")}
+					</CardTitle>
+					<CardDescription>{t("murajaah.profileDesc")}</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					<Button className="w-full" onClick={() => nav("/murajaah")}>
+						{t("murajaah.title")}
+					</Button>
 				</CardContent>
 			</Card>
 		</div>
