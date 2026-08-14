@@ -17,6 +17,23 @@ export default function OdojLanding() {
 		nav("/odoj/create");
 	}
 
+	// ODOJ perorangan: ambil group user sendiri (token), buka view-nya.
+	// Kalau belum punya group, arahkan buat group dulu.
+	async function goPersonal() {
+		try {
+			const res = await fetch("/api/odoj/groups/me");
+			const data = (await res.json()) as { group?: { token: string } | null };
+			if (!data.group || !data.group.token) {
+				nav("/odoj/create");
+				return;
+			}
+			const today = new Date().toISOString().slice(0, 10);
+			nav(`/odoj/view?group=${encodeURIComponent(data.group.token)}&date=${encodeURIComponent(today)}`);
+		} catch {
+			nav("/odoj/create");
+		}
+	}
+
 	return (
 		<div className="mx-auto max-w-3xl space-y-8 p-4">
 			{/* Hero */}
@@ -29,6 +46,7 @@ export default function OdojLanding() {
 				<div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
 					<Button onClick={goCreate} size="lg">{t("odoj.ctaStart")}</Button>
 					<Button onClick={goCreate} size="lg" variant="outline">{t("odoj.ctaCreateGroup")}</Button>
+					<Button onClick={goPersonal} size="lg" variant="secondary">{t("odoj.myOdoj")}</Button>
 				</div>
 			</div>
 

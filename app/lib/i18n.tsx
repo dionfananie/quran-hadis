@@ -219,6 +219,10 @@ const id = {
 	"odoj.copiedDesc": "Bagikan link ke group peserta ya.",
 	"odoj.viewAdmin": "Admin",
 
+	// ODOJ perorangan ("ODOJ Saya")
+	"odoj.myOdoj": "ODOJ Saya",
+	"odoj.myOdojDesc": "Lihat & tandai juz target Anda hari ini untuk khatam 30 hari sendiri.",
+
 	// ODOJ create page
 	"odoj.loading": "Memuat…",
 	"odoj.loadingGroup": "Memuat group…",
@@ -239,7 +243,6 @@ const id = {
 	"odoj.assignDesc": "Pilih peserta utk tiap juz. Kosong = belum di-assign.",
 	"odoj.empty": "— kosong —",
 	"odoj.doneLabel": "selesai",
-	"odoj.myOdoj": "ODOJ Saya",
 	"odoj.lastActive": "Terakhir aktif",
 	"odoj.viewOdoj": "Lihat ODOJ",
 	"odoj.noOdoj": "Belum ada group ODOJ",
@@ -456,6 +459,10 @@ const en: Record<keyof typeof id, string> = {
 	"odoj.copiedDesc": "Share the link to the participant group.",
 	"odoj.viewAdmin": "Admin",
 
+	// ODOJ perorangan ("ODOJ Saya")
+	"odoj.myOdoj": "My ODOJ",
+	"odoj.myOdojDesc": "See & mark your target juz for today to complete a 30-day khatam by yourself.",
+
 	// ODOJ create page
 	"odoj.loading": "Loading…",
 	"odoj.loadingGroup": "Loading group…",
@@ -476,7 +483,6 @@ const en: Record<keyof typeof id, string> = {
 	"odoj.assignDesc": "Pick a participant for each juz. Empty = not assigned.",
 	"odoj.empty": "— empty —",
 	"odoj.doneLabel": "done",
-	"odoj.myOdoj": "My ODOJ",
 	"odoj.lastActive": "Last active",
 	"odoj.viewOdoj": "Open ODOJ",
 	"odoj.noOdoj": "No ODOJ group yet",
