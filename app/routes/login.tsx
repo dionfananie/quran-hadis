@@ -17,7 +17,7 @@ export default function Login() {
 	const [loading, setLoading] = useState(false);
 	const nav = useNavigate();
 	const location = useLocation();
-	const from = (location.state as { from?: string } | null)?.from || "/odoj";
+	const from = (location.state as { from?: string } | null)?.from || "/";
 
 	async function submit(e: React.FormEvent) {
 		e.preventDefault();
@@ -58,7 +58,7 @@ export default function Login() {
 							variant="outline"
 							className="w-full"
 							onClick={() => {
-								window.location.href = "/api/auth/google";
+								window.location.href = `/api/auth/google?returnTo=${encodeURIComponent(from)}`;
 							}}
 						>
 							Login dengan Google

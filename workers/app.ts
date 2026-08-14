@@ -1,6 +1,5 @@
 import { createRequestHandler } from "react-router";
 import { odojApp } from "./api/odoj";
-import "./api/hafalan"; // side-effect: daftarkan route hafalan/murojaah ke odojApp
 
 declare module "react-router" {
 	export interface AppLoadContext {

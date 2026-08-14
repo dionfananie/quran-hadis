@@ -9,6 +9,7 @@ import {
 	setSessionCookie,
 	clearSessionCookie,
 } from "../lib/session";
+import { hafalanApp } from "./hafalan";
 
 type Env = { moozhaf_db: D1Database } & {
 	GOOGLE_CLIENT_ID?: string;
@@ -186,7 +187,12 @@ type GoogleUser = { id?: string; email?: string; name?: string; picture?: string
 odojApp.get("/auth/google", async (c) => {
 	const cfg = googleCfg(c);
 	if (!cfg.id || !cfg.redirect) return json({ error: "Google login belum dikonfigurasi" }, 500);
-	const state = await genOAuthState();
+	// Keperluan return-to: simpan path tujuan di dalam state (di-encode) agar callback
+	// bisa kembali ke halaman asal (mis. /murajaah), bukan selalu /odoj.
+	const url = new URL(c.req.url);
+	const returnTo = url.searchParams.get("returnTo") || "/";
+	const rand = await genOAuthState();
+	const state = `r=${encodeURIComponent(returnTo)}.${rand}`;
 	const params = new URLSearchParams({
 		client_id: cfg.id,
 		redirect_uri: cfg.redirect,
@@ -275,8 +281,20 @@ odojApp.get("/auth/google/callback", async (c) => {
 		}
 
 		const { token, expiresMs } = await createSession(d, uid);
-		// Redirect ke halaman admin ODOJ + set session cookie di header jawaban.
-		const redirectUrl = new URL("/odoj", c.req.url).toString();
+		// Redirect kembali ke halaman asal (returnTo dari OAuth state), fallback "/".
+		// state format: "r=<encodeURIComponent(returnTo)>.<random>"
+		let returnTo = "/";
+		const oauthState = sp.get("state") || "";
+		if (oauthState.startsWith("r=")) {
+			const encoded = oauthState.slice(2).split(".")[0];
+			try {
+				const decoded = decodeURIComponent(encoded);
+				if (decoded.startsWith("/")) returnTo = decoded;
+			} catch {
+				/* ignore invalid state */
+			}
+		}
+		const redirectUrl = new URL(returnTo, c.req.url).toString();
 		const res = new Response(null, {
 			status: 302,
 			headers: { location: redirectUrl },
@@ -559,4 +577,5 @@ odojApp.get("/odoj/history", async (c) => {
 	return json({ list: rows.results });
 });
 
+odojApp.route("/", hafalanApp); // mount API hafalan/murojaah (path final /api/*)
 odojApp.all("*", (c) => json({ error: "not found" }, 404));

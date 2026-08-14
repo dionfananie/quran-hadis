@@ -1,14 +1,16 @@
 // hafalan.ts — API Murojaah & Hafalan (Perorangan). Hono, scoped per-user dari session.
-// Menambahkan rute ke instance odojApp yang sudah ada (basePath /api).
-// Side-effect: cukup di-import oleh workers/app.ts agar rute terdaftar.
+// Membuat aplikasi Hono tersendiri (basePath kosong) yang kemudian di-mount oleh
+// odoj.ts ke odojApp (`odojApp.route("/", hafalanApp)`), sehingga path final = `/api/...`.
+import { Hono } from "hono";
 import { getSessionUser } from "../lib/session";
-import { odojApp } from "./odoj";
 
 type Env = { moozhaf_db: D1Database } & {
 	GOOGLE_CLIENT_ID?: string;
 	GOOGLE_CLIENT_SECRET?: string;
 	GOOGLE_REDIRECT_URI?: string;
 };
+
+export const hafalanApp = new Hono<{ Bindings: Env }>();
 
 const db = (c: { env: Env }) => c.env.moozhaf_db;
 
@@ -38,7 +40,7 @@ async function requireUserId(c: { env: Env; req: { raw: Request } }): Promise<st
 
 // ── HAFALAN per-juz ──────────────────────────────────────────────
 // GET /api/hafalan/juz → { list: [{ juz_number, done }] }
-odojApp.get("/hafalan/juz", async (c) => {
+hafalanApp.get("/hafalan/juz", async (c) => {
 	const d = db(c);
 	const userId = await requireUserId(c);
 	if (!userId) return json({ error: "unauthorized" }, 401);
@@ -50,7 +52,7 @@ odojApp.get("/hafalan/juz", async (c) => {
 });
 
 // PUT /api/hafalan/juz/:n  { done: boolean } → upsert
-odojApp.put("/hafalan/juz/:n", async (c) => {
+hafalanApp.put("/hafalan/juz/:n", async (c) => {
 	const d = db(c);
 	const userId = await requireUserId(c);
 	if (!userId) return json({ error: "unauthorized" }, 401);
@@ -72,7 +74,7 @@ odojApp.put("/hafalan/juz/:n", async (c) => {
 
 // ── HAFALAN per-surah ────────────────────────────────────────────
 // GET /api/hafalan/surah → { list: [{ surah_number, done }] }
-odojApp.get("/hafalan/surah", async (c) => {
+hafalanApp.get("/hafalan/surah", async (c) => {
 	const d = db(c);
 	const userId = await requireUserId(c);
 	if (!userId) return json({ error: "unauthorized" }, 401);
@@ -84,7 +86,7 @@ odojApp.get("/hafalan/surah", async (c) => {
 });
 
 // PUT /api/hafalan/surah/:n  { done: boolean } → upsert
-odojApp.put("/hafalan/surah/:n", async (c) => {
+hafalanApp.put("/hafalan/surah/:n", async (c) => {
 	const d = db(c);
 	const userId = await requireUserId(c);
 	if (!userId) return json({ error: "unauthorized" }, 401);
@@ -106,7 +108,7 @@ odojApp.put("/hafalan/surah/:n", async (c) => {
 
 // ── MURAJAJAH (riwayat & stats) ──────────────────────────────────
 // GET /api/murojaah → { list, total_days, today_done }
-odojApp.get("/murojaah", async (c) => {
+hafalanApp.get("/murojaah", async (c) => {
 	const d = db(c);
 	const userId = await requireUserId(c);
 	if (!userId) return json({ error: "unauthorized" }, 401);
@@ -140,7 +142,7 @@ odojApp.get("/murojaah", async (c) => {
 
 // PUT /api/murojaah { mode, ref_number } → toggle centang hari ini.
 // Insert jika belum ada; hapus (uncheck) jika sudah ada di tanggal hari ini.
-odojApp.put("/murojaah", async (c) => {
+hafalanApp.put("/murojaah", async (c) => {
 	const d = db(c);
 	const userId = await requireUserId(c);
 	if (!userId) return json({ error: "unauthorized" }, 401);
