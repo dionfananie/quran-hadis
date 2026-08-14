@@ -77,7 +77,7 @@ export function InstallAppBanner() {
 	if (!show) return null;
 
 	return (
-		<div className="pointer-events-none fixed inset-x-0 bottom-16 z-40 px-3 md:hidden">
+		<div className="pointer-events-none fixed inset-x-0 top-16 z-40 px-3 md:hidden">
 			<div className="pointer-events-auto mx-auto max-w-md rounded-2xl border border-border bg-surface-high/95 p-4 shadow-lg backdrop-blur dark:bg-surface">
 				<div className="flex items-start gap-3">
 					<div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-teal/15 text-teal">
