@@ -1,5 +1,5 @@
 import { Link, useSearchParams } from "react-router";
-import { ChevronRight, Play, Pause, ArrowLeft, Check } from "lucide-react";
+import { ChevronRight, Play, Pause, ArrowLeft, Check, Share2 } from "lucide-react";
 import { useRef, useState, useEffect, type KeyboardEvent } from "react";
 import type { Route } from "./+types/surah";
 import {
@@ -14,6 +14,7 @@ import { useShowTajwid, useShowTranslation } from "@/lib/hooks";
 import { TAJWEED_RULES, parseTajweed } from "@/lib/tajweed";
 import { SITE_URL } from "@/lib/seo";
 import { MemorizeButton } from "@/components/memorize-button";
+import { generateAyahShareImage } from "@/lib/share-ayat-image";
 import { cn } from "@/lib/utils";
 
 const LEGEND_GROUPS: { titleKey: TKey; match: (id: string) => boolean }[] = [
@@ -91,6 +92,37 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 			setOdojDone(false);
 		} finally {
 			setOdojBusy(false);
+		}
+	};
+
+	const [sharingAyah, setSharingAyah] = useState<number | null>(null);
+	// Generate gambar share 1 ayat (canvas) lalu download.
+	const shareAyahImage = async (inSurah: number) => {
+		if (!surah) return;
+		const ayah = surah.ayahs.find((a) => a.number.inSurah === inSurah);
+		if (!ayah) return;
+		setSharingAyah(inSurah);
+		try {
+			const blob = await generateAyahShareImage({
+				arab: ayah.arab,
+				translation: ayah.translation || "",
+				surahName: surah.name,
+				surahNumber: surah.number,
+				ayahNumber: inSurah,
+			});
+			// Download
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `ayat-${surah.number}-${inSurah}.png`;
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			URL.revokeObjectURL(url);
+		} catch {
+			// gagal generate — abaikan
+		} finally {
+			setSharingAyah(null);
 		}
 	};
 
@@ -421,6 +453,19 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 								)}
 							>
 								{isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
+							</button>
+							<button
+								type="button"
+								onClick={() => shareAyahImage(ayah.number.inSurah)}
+								disabled={sharingAyah === ayah.number.inSurah}
+								aria-label="Buat gambar ayat"
+								className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gold-surface text-teal transition-colors hover:bg-teal hover:text-white focus-visible:outline-2 focus-visible:outline-gold disabled:opacity-50 dark:bg-muted dark:text-foreground dark:hover:bg-primary dark:hover:text-primary-foreground"
+							>
+								{sharingAyah === ayah.number.inSurah ? (
+									<span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+								) : (
+									<Share2 className="size-4" />
+								)}
 							</button>
 						</div>
 					);
