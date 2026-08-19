@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Copy, Share2 } from "lucide-react";
 import {
 	Dialog,
@@ -8,6 +8,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
+import { generateAyahShareImage, type AyahShareInput } from "@/lib/share-ayat-image";
 
 function WhatsAppIcon() {
 	return (
@@ -31,69 +32,166 @@ interface ShareDialogProps {
 	title: string;
 	text: string;
 	url: string;
+	/** Bila ada, seluruh opsi share menggunakan GAMBAR ayat (bukan teks/link). */
+	imageSource?: AyahShareInput;
 }
 
-export function ShareDialog({ open, onOpenChange, title, text, url }: ShareDialogProps) {
+/** Generate gambar ayat → File PNG. Di-cache per dialog. */
+async function buildShareFile(imageSource: AyahShareInput): Promise<File> {
+	const blob = await generateAyahShareImage(imageSource);
+	const name = `ayat-${imageSource.surahNumber}-${imageSource.ayahNumber}.png`;
+	return new File([blob], name, { type: "image/png" });
+}
+
+export function ShareDialog({ open, onOpenChange, title, text, url, imageSource }: ShareDialogProps) {
 	const { t } = useI18n();
 	const [copied, setCopied] = useState(false);
+	const [busy, setBusy] = useState(false);
+	const fileCache = useRef<File | null>(null);
+
+	// Reset cache tiap dialog dibuka agar gambar fresh.
+	useEffect(() => {
+		if (open) fileCache.current = null;
+	}, [open]);
+
+	async function getFile(): Promise<File | null> {
+		if (!imageSource) return null;
+		if (fileCache.current) return fileCache.current;
+		setBusy(true);
+		try {
+			const f = await buildShareFile(imageSource);
+			fileCache.current = f;
+			return f;
+		} finally {
+			setBusy(false);
+		}
+	}
+
+	// Share native dgn GAMBAR (muncul chooser termasuk WhatsApp/X). Fallback teks.
+	async function shareNative() {
+		if (imageSource) {
+			const file = await getFile();
+			if (file) {
+				const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+				if (nav.canShare && nav.canShare({ files: [file] })) {
+					try {
+						await navigator.share({ files: [file], title, text });
+						onOpenChange(false);
+						return;
+					} catch {
+						/* user cancel / gagal → fallthrough */
+					}
+				}
+				// fallback download
+				downloadFile(file);
+				onOpenChange(false);
+				return;
+			}
+		}
+		if (typeof navigator !== "undefined" && "share" in navigator) {
+			try {
+				await navigator.share({ title, text, url });
+				onOpenChange(false);
+			} catch {
+				/* cancel */
+			}
+		}
+	}
+
+	// Copy: bila imageSource → copy GAMBAR ke clipboard; bila tidak → copy teks.
+	async function copy() {
+		if (imageSource) {
+			const file = await getFile();
+			if (file && typeof navigator.clipboard !== "undefined" && "write" in navigator.clipboard) {
+				try {
+					await navigator.clipboard.write([
+						new ClipboardItem({ "image/png": file }),
+					]);
+					setCopied(true);
+					setTimeout(() => setCopied(false), 2000);
+					return;
+				} catch {
+					/* gambar tak bisa dicopy → fallback teks */
+				}
+			}
+		}
+		if (typeof navigator !== "undefined" && "clipboard" in navigator) {
+			try {
+				await navigator.clipboard.writeText(text);
+				setCopied(true);
+				setTimeout(() => setCopied(false), 2000);
+			} catch {
+				/* ignore */
+			}
+		}
+	}
+
+	function downloadFile(file: File) {
+		const url = URL.createObjectURL(file);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = file.name;
+		document.body.appendChild(a);
+		a.click();
+		a.remove();
+		URL.revokeObjectURL(url);
+	}
 
 	const whatsappUrl = `https://api.whatsapp.com/send/?text=${encodeURIComponent(text)}`;
 	const xUrl = `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
 
-	const copy = async () => {
-		if (typeof navigator === "undefined" || !("clipboard" in navigator)) return;
-		try {
-			await navigator.clipboard.writeText(text);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 2000);
-		} catch {
-			// ignore clipboard errors
-		}
-	};
-
-	const nativeShare = async () => {
-		if (typeof navigator === "undefined" || !("share" in navigator)) return;
-		try {
-			await navigator.share({ title, text, url });
-			onOpenChange(false);
-		} catch {
-			// user dismissed or share failed
-		}
-	};
-
 	const optionClass =
-		"flex flex-col items-center gap-2 rounded-lg border border-gold-border px-4 py-5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accenthover:text-foreground";
+		"flex w-full flex-col items-center gap-2 rounded-lg border border-gold-border px-4 py-5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50";
+
+	const busyLabel = t("odoj.loading"); // "Memuat…"
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-sm">
 				<DialogHeader>
 					<DialogTitle>{t("common_shareTo")}</DialogTitle>
-					<DialogDescription>{title}</DialogDescription>
+					<DialogDescription>
+						{title}
+						{imageSource ? " — akan dibagikan sebagai gambar" : ""}
+					</DialogDescription>
 				</DialogHeader>
-				<div className="grid grid-cols-3 gap-3">
-					<a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={optionClass}>
-						<WhatsAppIcon />
-						<span>WhatsApp</span>
-					</a>
-					<a href={xUrl} target="_blank" rel="noopener noreferrer" className={optionClass}>
-						<XIcon />
-						<span>X</span>
-					</a>
-					<button type="button" onClick={copy} className={optionClass}>
-						{copied ? <Check className="size-6 text-teal" /> : <Copy className="size-6" />}
-						<span>{copied ? t("common_copied") : t("common_copy")}</span>
-					</button>
-				</div>
-				{typeof navigator !== "undefined" && "share" in navigator && (
-					<button
-						type="button"
-						onClick={nativeShare}
-						className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-teal px-4 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-					>
-						<Share2 className="size-4" />
-						{t("common_more")}
-					</button>
+
+				{imageSource ? (
+					/* Mode gambar: setiap pilihan meng-share GAMBAR ayat */
+					<div className="grid grid-cols-2 gap-3">
+						<button type="button" disabled={busy} onClick={shareNative} className={optionClass}>
+							{busy ? <span className="size-6 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <WhatsAppIcon />}
+							<span>{busy ? busyLabel : "WhatsApp"}</span>
+						</button>
+						<button type="button" disabled={busy} onClick={shareNative} className={optionClass}>
+							{busy ? <span className="size-6 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <XIcon />}
+							<span>{busy ? busyLabel : "Lainnya"}</span>
+						</button>
+						<button type="button" disabled={busy} onClick={copy} className={`${optionClass} col-span-2`}>
+							{copied ? <Check className="size-6 text-teal" /> : <Copy className="size-6" />}
+							<span>{copied ? t("common_copied") : busy ? busyLabel : t("common_copy")}</span>
+						</button>
+						<button type="button" disabled={busy} onClick={shareNative} className={`${optionClass} col-span-2 bg-teal text-white`}>
+							<Share2 className="size-5" />
+							<span>{t("common_more")}</span>
+						</button>
+					</div>
+				) : (
+					/* Mode teks/link (default) */
+					<div className="grid grid-cols-3 gap-3">
+						<a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={optionClass}>
+							<WhatsAppIcon />
+							<span>WhatsApp</span>
+						</a>
+						<a href={xUrl} target="_blank" rel="noopener noreferrer" className={optionClass}>
+							<XIcon />
+							<span>X</span>
+						</a>
+						<button type="button" onClick={copy} className={optionClass}>
+							{copied ? <Check className="size-6 text-teal" /> : <Copy className="size-6" />}
+							<span>{copied ? t("common_copied") : t("common_copy")}</span>
+						</button>
+					</div>
 				)}
 			</DialogContent>
 		</Dialog>
