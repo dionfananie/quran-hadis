@@ -83,26 +83,38 @@ export async function generateAyahShareImage(input: AyahShareInput): Promise<Blo
 	const CX = cw / 2;
 	const MAX_W = RX - LX;
 
-	// 2. Ayat arab — auto-shrink agar lebar <= MAX_W
-	const FONT_ARAB = '700 80px "Amiri", "Scheherazade New", "Traditional Arabic", serif';
-	let arabSize = 80;
+	// 2. Ayat arab — auto-shrink font, lalu WRAP ke beberapa baris bila terlalu panjang,
+	//    agar tidak overlap & tidak melewati margin kiri-kanan.
 	ctx.textAlign = "center";
 	ctx.textBaseline = "middle";
 	ctx.fillStyle = "#ffffff";
-	while (arabSize >= 30) {
+	ctx.direction = "rtl";
+	let arabSize = 80;
+	// Turunkan ukuran font sampai teks muat SATU baris (min 34px).
+	while (arabSize > 34) {
 		ctx.font = `700 ${arabSize}px "Amiri", serif`;
 		if (ctx.measureText(input.arab).width <= MAX_W) break;
 		arabSize -= 4;
 	}
 	ctx.font = `700 ${arabSize}px "Amiri", serif`;
-	const ayahY = ch * 0.4;
-	ctx.fillText(input.arab, CX, ayahY);
+	// Segmen-segmen: urutkan teks arab jadi baris-baris yang muat dalam MAX_W.
+	const arabLines = wrapText(ctx, input.arab, MAX_W);
+	const arabLineH = arabSize * 1.55;
+	const arabBlockH = arabLines.length * arabLineH;
+	// Titik mulai agar blok ayat terpusat dengan arti tetap punya ruang.
+	let arabTop = ch * 0.4 - (arabBlockH - arabLineH) / 2;
+	if (arabTop < ch * 0.16) arabTop = ch * 0.16;
+	for (let i = 0; i < arabLines.length; i++) {
+		ctx.fillText(arabLines[i], CX, arabTop + i * arabLineH);
+	}
+	const arabBottom = arabTop + arabLines.length * arabLineH;
 
 	// 3. Arti — wrap agar tidak melewati [LX..RX]
+	ctx.direction = "ltr";
 	const transSize = Math.round(ch * 0.027);
 	ctx.font = `italic 400 ${transSize}px "Plus Jakarta Sans", "Noto Serif", serif`;
 	const artiLines = wrapText(ctx, input.translation, MAX_W);
-	const artiStartY = ayahY + ch * 0.16;
+	const artiStartY = arabBottom + ch * 0.05;
 	let y = artiStartY;
 	const lineH = transSize * 1.5;
 	for (const ln of artiLines) {
