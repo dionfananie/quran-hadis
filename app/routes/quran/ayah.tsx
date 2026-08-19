@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { ChevronRight, Play, Pause, ArrowLeft, ArrowRight, Share2 } from "lucide-react";
+import { ChevronRight, Play, Pause, ArrowLeft, ArrowRight, Share2, ImageDown } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import type { Route } from "./+types/ayah";
 import { getSurah, getSurahMeta } from "@/lib/data/quran";
@@ -9,6 +9,7 @@ import { SITE_URL } from "@/lib/seo";
 import { TafsirCard } from "@/components/quran/tafsir-card";
 import { ShareDialog } from "@/components/share-dialog";
 import { useLastRead } from "@/lib/hooks";
+import { generateAyahShareImage } from "@/lib/share-ayat-image";
 
 export function meta({ params }: Route.MetaArgs) {
 	const number = Number(params.number);
@@ -75,6 +76,47 @@ function AyahPlayer({ ayah, surah }: { ayah: Ayah; surah: Surah }) {
 	const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/quran/${surah.number}/${ayah.number.inSurah}`;
 	const shareText = `${ayah.arab}\n\n${ayah.translation}\n\n${t("common_shareMore")}\n${shareUrl}`;
 
+	const [sharing, setSharing] = useState(false);
+	// Generate gambar ayat (canvas) lalu SHARE native (muncul chooser termasuk WhatsApp)
+	// dengan gambar sekalian. Fallback: download PNG bila Web Share API tak tersedia.
+	const shareImage = async () => {
+		if (sharing) return;
+		setSharing(true);
+		try {
+			const blob = await generateAyahShareImage({
+				arab: ayah.arab,
+				translation: ayah.translation || "",
+				surahName: surah.name,
+				surahNumber: surah.number,
+				ayahNumber: ayah.number.inSurah,
+			});
+			const file = new File([blob], `ayat-${surah.number}-${ayah.number.inSurah}.png`, { type: "image/png" });
+			const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+			if (nav.canShare && nav.canShare({ files: [file] })) {
+				await navigator.share({
+					files: [file],
+					title: `${surah.name}:${ayah.number.inSurah}`,
+					text: shareText,
+				});
+			} else {
+				// fallback: download
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = file.name;
+				document.body.appendChild(a);
+				a.click();
+				a.remove();
+				URL.revokeObjectURL(url);
+			}
+		} catch (err) {
+			console.error("shareImage gagal:", err);
+			alert("Gagal membuat gambar ayat. Coba lagi.");
+		} finally {
+			setSharing(false);
+		}
+	};
+
 	return (
 		<div className="space-y-4">
 			{audioUrl && (
@@ -95,7 +137,20 @@ function AyahPlayer({ ayah, surah }: { ayah: Ayah; surah: Surah }) {
 						<Share2 className="size-4" />
 						{t("common_share")}
 					</button>
-				</div>
+					<button
+						type="button"
+						onClick={shareImage}
+						disabled={sharing}
+						className="inline-flex items-center gap-1.5 rounded-lg bg-gold px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+					>
+						{sharing ? (
+							<span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+						) : (
+							<ImageDown className="size-4" />
+						)}
+						Buat Gambar
+					</button>
+					</div>
 			)}
 			{reciters.length > 1 && (
 				<div className="flex flex-wrap gap-2">
