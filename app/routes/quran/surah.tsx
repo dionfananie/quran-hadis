@@ -119,8 +119,9 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 			a.click();
 			a.remove();
 			URL.revokeObjectURL(url);
-		} catch {
-			// gagal generate — abaikan
+		} catch (err) {
+			console.error("shareAyahImage gagal:", err);
+			alert("Gagal membuat gambar ayat. Coba lagi.");
 		} finally {
 			setSharingAyah(null);
 		}
