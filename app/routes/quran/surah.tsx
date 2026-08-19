@@ -275,7 +275,7 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 			</div>
 
 			{/* Ayahs */}
-			<div className="space-y-3">
+			<div className="space-y-3 px-6">
 				{/* Display toolbar */}
 				<div className="rounded-xl border border-gold-border bg-card p-3">
 					<div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">

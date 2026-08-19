@@ -296,7 +296,7 @@ export default function Juz() {
 			</div>
 
 			{/* Ayahs */}
-			<div className="space-y-3">
+			<div className="space-y-3 px-6">
 				{ayahs.map((a, idx) => {
 					const isPlaying = current === a.key;
 					const surahChanged = idx === 0 || a.surah !== ayahs[idx - 1].surah;
