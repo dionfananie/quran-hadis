@@ -14,7 +14,7 @@ import { useShowTajwid, useShowTranslation } from "@/lib/hooks";
 import { TAJWEED_RULES, parseTajweed } from "@/lib/tajweed";
 import { SITE_URL } from "@/lib/seo";
 import { MemorizeButton } from "@/components/memorize-button";
-import { generateAyahShareImage } from "@/lib/share-ayat-image";
+import { ShareDialog } from "@/components/share-dialog";
 import { cn } from "@/lib/utils";
 
 const LEGEND_GROUPS: { titleKey: TKey; match: (id: string) => boolean }[] = [
@@ -95,47 +95,12 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 		}
 	};
 
-	const [sharingAyah, setSharingAyah] = useState<number | null>(null);
-	// Share 1 ayat: generate gambar (canvas) lalu popup NATIVE share device.
-	const shareAyahImage = async (inSurah: number) => {
-		if (!surah) return;
-		const ayah = surah.ayahs.find((a) => a.number.inSurah === inSurah);
-		if (!ayah) return;
-		setSharingAyah(inSurah);
-		try {
-			const blob = await generateAyahShareImage({
-				arab: ayah.arab,
-				translation: ayah.translation || "",
-				surahName: surah.name,
-				surahNumber: surah.number,
-				ayahNumber: inSurah,
-			});
-			const file = new File([blob], `ayat-${surah.number}-${inSurah}.png`, { type: "image/png" });
-			const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
-			if (nav.canShare && nav.canShare({ files: [file] })) {
-				await navigator.share({ files: [file], title: `${surah.name}:${inSurah}`, text: `${ayah.arab}\n${ayah.translation || ""}` });
-			} else {
-				// fallback: download (desktop / Web Share files tak didukung)
-				const url = URL.createObjectURL(blob);
-				const a = document.createElement("a");
-				a.href = url;
-				a.download = file.name;
-				document.body.appendChild(a);
-				a.click();
-				a.remove();
-				URL.revokeObjectURL(url);
-			}
-		} catch (err) {
-			// User membatalkan popup native (AbortError) → diam, bukan error.
-			const name = err instanceof Error ? err.name : "";
-			if (!(name === "AbortError" || name === "NotAllowedError")) {
-				console.error("shareAyahImage gagal:", err);
-				alert("Gagal membuat gambar ayat. Coba lagi.");
-			}
-		} finally {
-			setSharingAyah(null);
-		}
-	};
+	const [shareAyah, setShareAyah] = useState<{
+		arab: string;
+		translation?: string;
+		number: { inSurah: number };
+	} | null>(null);
+	const openShare = (ayah: typeof shareAyah) => setShareAyah(ayah);
 
 	// Load surah data client-side
 	useEffect(() => {
@@ -467,16 +432,11 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 							</button>
 							<button
 								type="button"
-								onClick={() => shareAyahImage(ayah.number.inSurah)}
-								disabled={sharingAyah === ayah.number.inSurah}
-								aria-label="Buat gambar ayat"
-								className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gold-surface text-teal transition-colors hover:bg-teal hover:text-white focus-visible:outline-2 focus-visible:outline-gold disabled:opacity-50 dark:bg-muted dark:text-foreground dark:hover:bg-primary dark:hover:text-primary-foreground"
+								onClick={() => openShare(ayah)}
+								aria-label="Share ayat"
+								className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gold-surface text-teal transition-colors hover:bg-teal hover:text-white focus-visible:outline-2 focus-visible:outline-gold dark:bg-muted dark:text-foreground dark:hover:bg-primary dark:hover:text-primary-foreground"
 							>
-								{sharingAyah === ayah.number.inSurah ? (
-									<span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-								) : (
-									<Share2 className="size-4" />
-								)}
+								<Share2 className="size-4" />
 							</button>
 						</div>
 					);
@@ -514,6 +474,23 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 					<div />
 				)}
 			</div>
+
+			{shareAyah && (
+				<ShareDialog
+					open
+					onOpenChange={(o) => !o && setShareAyah(null)}
+					title={`${surah.name}:${shareAyah.number.inSurah}`}
+					text={`${shareAyah.arab}\n\n${shareAyah.translation || ""}\n\n${t("common_shareMore")} ${SITE_URL}/quran/${surah.number}/${shareAyah.number.inSurah}`}
+					url={`${SITE_URL}/quran/${surah.number}/${shareAyah.number.inSurah}`}
+					imageSource={{
+						arab: shareAyah.arab,
+						translation: shareAyah.translation || "",
+						surahName: surah.name,
+						surahNumber: surah.number,
+						ayahNumber: shareAyah.number.inSurah,
+					}}
+				/>
+			)}
 		</div>
 	);
 }
