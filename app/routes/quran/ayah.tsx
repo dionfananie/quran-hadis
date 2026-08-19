@@ -7,7 +7,6 @@ import type { Ayah, Surah } from "@/lib/data/types";
 import { useI18n } from "@/lib/i18n";
 import { SITE_URL } from "@/lib/seo";
 import { TafsirCard } from "@/components/quran/tafsir-card";
-import { ShareDialog } from "@/components/share-dialog";
 import { useLastRead } from "@/lib/hooks";
 import { generateAyahShareImage } from "@/lib/share-ayat-image";
 
@@ -43,7 +42,7 @@ function AyahPlayer({ ayah, surah }: { ayah: Ayah; surah: Surah }) {
 	const { t } = useI18n();
 	const audioRef = useRef<HTMLAudioElement | null>(null);
 	const [playing, setPlaying] = useState(false);
-	const [shareOpen, setShareOpen] = useState(false);
+	const [sharing, setSharing] = useState(false);
 	const [reciter, setReciter] = useState<string>(() => Object.keys(ayah.audio)[0] ?? "");
 
 	const reciters = Object.keys(ayah.audio);
@@ -76,14 +75,40 @@ function AyahPlayer({ ayah, surah }: { ayah: Ayah; surah: Surah }) {
 	const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/quran/${surah.number}/${ayah.number.inSurah}`;
 	const shareText = `${ayah.arab}\n\n${ayah.translation}\n\n${t("common_shareMore")}\n${shareUrl}`;
 
-	// Data gambar utk dicantumkan di ShareDialog (share otomatis berupa GAMBAR,
-	// bukan teks/link). Dibangun dari data ayah.
-	const shareImageSource = {
-		arab: ayah.arab,
-		translation: ayah.translation || "",
-		surahName: surah.name,
-		surahNumber: surah.number,
-		ayahNumber: ayah.number.inSurah,
+	// Share langsung: generate gambar ayat (canvas) lalu popup NATIVE share device
+	// (muncul chooser sistem termasuk WhatsApp). Tanpa pilihan channel perantara.
+	const shareImage = async () => {
+		if (sharing) return;
+		setSharing(true);
+		try {
+			const blob = await generateAyahShareImage({
+				arab: ayah.arab,
+				translation: ayah.translation || "",
+				surahName: surah.name,
+				surahNumber: surah.number,
+				ayahNumber: ayah.number.inSurah,
+			});
+			const file = new File([blob], `ayat-${surah.number}-${ayah.number.inSurah}.png`, { type: "image/png" });
+			const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+			if (nav.canShare && nav.canShare({ files: [file] })) {
+				await navigator.share({ files: [file], title: `${surah.name}:${ayah.number.inSurah}`, text: shareText });
+			} else {
+				// fallback: download (desktop / Web Share files tak didukung)
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = file.name;
+				document.body.appendChild(a);
+				a.click();
+				a.remove();
+				URL.revokeObjectURL(url);
+			}
+		} catch (err) {
+			console.error("shareImage gagal:", err);
+			alert("Gagal membuat gambar ayat. Coba lagi.");
+		} finally {
+			setSharing(false);
+		}
 	};
 
 	return (
@@ -100,14 +125,19 @@ function AyahPlayer({ ayah, surah }: { ayah: Ayah; surah: Surah }) {
 					</button>
 					<button
 						type="button"
-						onClick={() => setShareOpen(true)}
-						className="inline-flex items-center gap-1.5 rounded-lg border border-gold-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accenthover:text-foreground"
+						onClick={shareImage}
+						disabled={sharing}
+						className="inline-flex items-center gap-1.5 rounded-lg border border-gold-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
 					>
-						<Share2 className="size-4" />
+						{sharing ? (
+							<span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+						) : (
+							<Share2 className="size-4" />
+						)}
 						{t("common_share")}
 						</button>
 						</div>
-						)}
+					)}
 			{reciters.length > 1 && (
 				<div className="flex flex-wrap gap-2">
 					{reciters.map((r) => (
@@ -125,15 +155,6 @@ function AyahPlayer({ ayah, surah }: { ayah: Ayah; surah: Surah }) {
 					))}
 				</div>
 			)}
-
-			<ShareDialog
-				open={shareOpen}
-				onOpenChange={setShareOpen}
-				title={`${surah.name}:${ayah.number.inSurah}`}
-				text={shareText}
-				url={shareUrl}
-				imageSource={shareImageSource}
-			/>
 		</div>
 	);
 }
