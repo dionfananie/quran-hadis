@@ -30,11 +30,42 @@ function isIOS() {
 	return /iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
+const DISMISS_KEY = "install-dismissed-at";
+const DISMISS_EXPIRY_MS = 60 * 24 * 60 * 60 * 1000; // 2 bulan (diasumsikan ~60 hari)
+
+/** True bila user belum lagi dismiss dalam 2 bulan terakhir & boleh nampil. */
+function hasActiveDismiss(): boolean {
+	if (typeof window === "undefined") return false;
+	try {
+		const raw = window.localStorage.getItem(DISMISS_KEY);
+		if (!raw) return false;
+		const dismissedAt = Number(raw);
+		if (!Number.isFinite(dismissedAt)) return false;
+		return Date.now() - dismissedAt < DISMISS_EXPIRY_MS;
+	} catch {
+		return false; // storage tak tersedia (private mode) → abai, tetap boleh tampil
+	}
+}
+
+function persistDismiss(): void {
+	if (typeof window === "undefined") return;
+	try {
+		window.localStorage.setItem(DISMISS_KEY, String(Date.now()));
+	} catch {
+		/* storage penuh/tak tersedia → silent, banner tetap hilang utk sesi ini */
+	}
+}
+
 export function InstallAppBanner() {
 	const [installEvt, setInstallEvt] = useState<BeforeInstallPromptEvent | null>(null);
 	const [dismissed, setDismissed] = useState(false);
 	const [isInstalled, setIsInstalled] = useState(false);
 	const [iosHint, setIosHint] = useState(false);
+
+	// Inisialisasi larangan-nampil 2 bulan dari storage (client-only).
+	useEffect(() => {
+		if (hasActiveDismiss()) setDismissed(true);
+	}, []);
 
 	useEffect(() => {
 		if (typeof window === "undefined" || isStandalone()) {
@@ -95,6 +126,7 @@ export function InstallAppBanner() {
 						type="button"
 						aria-label="Tutup"
 						onClick={() => {
+							persistDismiss();
 							setDismissed(true);
 							setIosHint(false);
 						}}
@@ -111,7 +143,9 @@ export function InstallAppBanner() {
 							try {
 								await installEvt.prompt();
 							} finally {
-								// Sembunyikan setelah pilih (accepted/dismissed) untuk tidak mengganggu.
+								// Sembunyikan setelah pilih (accepted/dismissed) untuk tidak mengganggu;
+								// bila ditutup/ditunda, patok 2 bulan supaya tidak muncul lagi berulang.
+								persistDismiss();
 								setDismissed(true);
 								setInstallEvt(null);
 							}
