@@ -104,8 +104,12 @@ function AyahPlayer({ ayah, surah }: { ayah: Ayah; surah: Surah }) {
 				URL.revokeObjectURL(url);
 			}
 		} catch (err) {
-			console.error("shareImage gagal:", err);
-			alert("Gagal membuat gambar ayat. Coba lagi.");
+			// User membatalkan popup native (AbortError) → diam, bukan error.
+			const name = err instanceof Error ? err.name : "";
+			if (!(name === "AbortError" || name === "NotAllowedError")) {
+				console.error("shareImage gagal:", err);
+				alert("Gagal membuat gambar ayat. Coba lagi.");
+			}
 		} finally {
 			setSharing(false);
 		}

@@ -96,7 +96,7 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 	};
 
 	const [sharingAyah, setSharingAyah] = useState<number | null>(null);
-	// Generate gambar share 1 ayat (canvas) lalu download.
+	// Share 1 ayat: generate gambar (canvas) lalu popup NATIVE share device.
 	const shareAyahImage = async (inSurah: number) => {
 		if (!surah) return;
 		const ayah = surah.ayahs.find((a) => a.number.inSurah === inSurah);
@@ -110,18 +110,28 @@ export default function QuranSurah({ loaderData, params }: Route.ComponentProps)
 				surahNumber: surah.number,
 				ayahNumber: inSurah,
 			});
-			// Download
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement("a");
-			a.href = url;
-			a.download = `ayat-${surah.number}-${inSurah}.png`;
-			document.body.appendChild(a);
-			a.click();
-			a.remove();
-			URL.revokeObjectURL(url);
+			const file = new File([blob], `ayat-${surah.number}-${inSurah}.png`, { type: "image/png" });
+			const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
+			if (nav.canShare && nav.canShare({ files: [file] })) {
+				await navigator.share({ files: [file], title: `${surah.name}:${inSurah}`, text: `${ayah.arab}\n${ayah.translation || ""}` });
+			} else {
+				// fallback: download (desktop / Web Share files tak didukung)
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = file.name;
+				document.body.appendChild(a);
+				a.click();
+				a.remove();
+				URL.revokeObjectURL(url);
+			}
 		} catch (err) {
-			console.error("shareAyahImage gagal:", err);
-			alert("Gagal membuat gambar ayat. Coba lagi.");
+			// User membatalkan popup native (AbortError) → diam, bukan error.
+			const name = err instanceof Error ? err.name : "";
+			if (!(name === "AbortError" || name === "NotAllowedError")) {
+				console.error("shareAyahImage gagal:", err);
+				alert("Gagal membuat gambar ayat. Coba lagi.");
+			}
 		} finally {
 			setSharingAyah(null);
 		}
