@@ -5,7 +5,19 @@
 
 import { SITE_URL } from "@/lib/seo";
 
-export const SHARE_BACKGROUNDS = ["/backgrounds/bg-1.jpg"];
+export const SHARE_BACKGROUNDS = [
+	"/backgrounds/bg-1.jpg",
+	"/backgrounds/mosque-1.jpg",
+	"/backgrounds/mosque-2.jpg",
+	"/backgrounds/mosque-3.jpg",
+	"/backgrounds/mosque-4.jpg",
+];
+
+const getRandomBackground = () => {
+	return SHARE_BACKGROUNDS[
+		Math.floor(Math.random() * SHARE_BACKGROUNDS.length)
+	];
+};
 
 export interface AyahShareInput {
 	arab: string;
@@ -56,12 +68,13 @@ function scrim(ctx: CanvasRenderingContext2D, w: number, h: number) {
 export async function generateAyahShareImage(input: AyahShareInput): Promise<Blob> {
 	await ensureFonts();
 
-	const bgUrl = input.backgroundUrl || SHARE_BACKGROUNDS[0];
+	const bgImage = getRandomBackground()
+	const bgUrl = input.backgroundUrl || bgImage;
 	let bg: HTMLImageElement;
 	try {
 		bg = await loadImage(bgUrl);
 	} catch {
-		bg = await loadImage(SHARE_BACKGROUNDS[0]);
+		bg = await loadImage(bgImage);
 	}
 
 	// Ukuran canvas mengikuti rasio background (portrait). Bila bg sudah 1080x1620, pakai itu.
